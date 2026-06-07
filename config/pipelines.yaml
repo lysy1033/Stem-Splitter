@@ -1,0 +1,41 @@
+# Preset = uporzadkowana lista etapow.
+# Etap: input (mix LUB nazwa stemu z wczesniejszego etapu), model (id z models.yaml),
+#       outputs (mapa: nazwa_stemu_z_separatora -> nazwa_kanoniczna).
+presets:
+  szybko:
+    label: "Szybko"
+    stages:
+      - input: mix
+        model: htdemucs
+        outputs: {Vocals: wokal, Drums: perkusja, Bass: bas, Other: inne}
+  najlepsza:
+    label: "Najlepsza jakosc"
+    stages:
+      - input: mix
+        model: htdemucs_ft
+        outputs: {Vocals: wokal, Drums: perkusja, Bass: bas, Other: inne}
+  maksymalna:
+    label: "Maksymalna (kaskada)"
+    stages:
+      - input: mix
+        model: roformer_vocals
+        outputs: {Vocals: wokal, Instrumental: instrumental}
+      - input: instrumental
+        model: htdemucs_6s
+        outputs: {Bass: bas, Drums: perkusja, Guitar: gitara, Piano: pianino, Other: inne}
+
+# Rozszerzenia doklejane na koncu pipeline, gdy uzytkownik zaznaczy przelacznik.
+# 'requires' to stem, ktory musi byc wczesniej wyprodukowany.
+extensions:
+  lead_chorki:
+    requires: wokal
+    stage:
+      input: wokal
+      model: roformer_karaoke
+      outputs: {Vocals: lead, "Backing Vocals": chorki}
+  perkusja_elementy:
+    requires: perkusja
+    stage:
+      input: perkusja
+      model: drumsep
+      outputs: {Kick: stopa, Snare: werbel, Cymbals: talerze, Toms: tomy}
