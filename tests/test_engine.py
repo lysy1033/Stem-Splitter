@@ -17,17 +17,31 @@ def test_parse_stem_name_cascade_takes_last_group():
     assert engine._parse_stem_name(name2) == "Vocals"
 
 
-def test_detect_acceleration_cuda(monkeypatch):
+def test_detect_acceleration_torch_cuda(monkeypatch):
+    monkeypatch.setattr(engine, "_torch_device", lambda: "cuda")
+    assert "CUDA" in engine.detect_acceleration()
+
+
+def test_detect_acceleration_torch_mps(monkeypatch):
+    monkeypatch.setattr(engine, "_torch_device", lambda: "mps")
+    assert "MPS" in engine.detect_acceleration()
+
+
+def test_detect_acceleration_onnx_cuda_fallback(monkeypatch):
+    # Bez akceleratora torch, ale onnxruntime ma providera CUDA.
+    monkeypatch.setattr(engine, "_torch_device", lambda: None)
     monkeypatch.setattr(engine, "_onnx_providers", lambda: ["CUDAExecutionProvider"])
     assert "CUDA" in engine.detect_acceleration()
 
 
-def test_detect_acceleration_coreml(monkeypatch):
+def test_detect_acceleration_onnx_coreml_fallback(monkeypatch):
+    monkeypatch.setattr(engine, "_torch_device", lambda: None)
     monkeypatch.setattr(engine, "_onnx_providers", lambda: ["CoreMLExecutionProvider"])
     assert "CoreML" in engine.detect_acceleration()
 
 
 def test_detect_acceleration_cpu(monkeypatch):
+    monkeypatch.setattr(engine, "_torch_device", lambda: None)
     monkeypatch.setattr(engine, "_onnx_providers", lambda: [])
     assert engine.detect_acceleration() == "CPU"
 

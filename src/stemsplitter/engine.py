@@ -23,7 +23,29 @@ def _onnx_providers() -> list[str]:
         return []
 
 
+def _torch_device() -> str | None:
+    """Zwraca 'cuda'/'mps' jesli PyTorch widzi akcelerator, inaczej None.
+    Modele Roformer/MDXC licza przez PyTorch, wiec to ono (a nie onnxruntime)
+    decyduje o realnym uzyciu GPU dla tych modeli."""
+    try:
+        import torch
+        if torch.cuda.is_available():
+            return "cuda"
+        mps = getattr(torch.backends, "mps", None)
+        if mps is not None and mps.is_available():
+            return "mps"
+    except Exception:
+        pass
+    return None
+
+
 def detect_acceleration() -> str:
+    # Najpierw PyTorch (modele Roformer/MDXC), potem onnxruntime jako fallback.
+    device = _torch_device()
+    if device == "cuda":
+        return "CUDA (NVIDIA GPU)"
+    if device == "mps":
+        return "MPS (Apple Silicon)"
     providers = _onnx_providers()
     if "CUDAExecutionProvider" in providers:
         return "CUDA (NVIDIA GPU)"
