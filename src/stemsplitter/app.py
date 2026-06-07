@@ -122,7 +122,9 @@ def build_ui() -> gr.Blocks:
 
 def main():
     _ensure_ffmpeg()  # pobierz/ustaw ffmpeg juz przy starcie
-    build_ui().launch(inbrowser=True)
+    # allowed_paths: pozwol Gradio serwowac pliki wynikowe z ~/StemSplitter (poza cwd/temp)
+    out_dir = str(paths.ensure_data_dirs().base)
+    build_ui().launch(inbrowser=True, allowed_paths=[out_dir])
 
 
 if __name__ == "__main__":
