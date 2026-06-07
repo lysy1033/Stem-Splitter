@@ -26,7 +26,9 @@ def _zip_results(result: dict[str, str], output_dir: Path) -> str:
 
 
 def separate(file_path, url, chosen_stems, preset_key, split_vocals, split_drums, lang,
-             progress=gr.Progress()):
+             progress=gr.Progress(track_tqdm=True)):
+    # track_tqdm=True: pasek postepu podaza za wewnetrznym tqdm audio-separator
+    # (to, co widac w terminalu), wiec nie stoi w miejscu podczas separacji.
     t = TEXT.get(lang, TEXT["en"])
     if not chosen_stems:
         raise gr.Error(t["err_no_stem"])
