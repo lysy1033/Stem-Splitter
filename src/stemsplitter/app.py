@@ -1,3 +1,4 @@
+import sys
 import zipfile
 from pathlib import Path
 
@@ -5,6 +6,20 @@ import gradio as gr
 
 from . import engine, media, paths, pipeline, youtube
 from .i18n import PRESET_KEYS, STEM_KEYS, TEXT, pick_lang
+
+
+def _force_utf8_io() -> None:
+    """Wymusza UTF-8 na stdout/stderr (Windows: domyslnie cp1250).
+
+    Paski postepu tqdm (pobieranie modelu w audio-separator) uzywaja znakow
+    blokowych Unicode (np. ▏). Konsola PL ma kodowanie cp1250, ktore ich nie
+    zna -> UnicodeEncodeError. errors='replace' dodatkowo zabezpiecza przed
+    pojedynczymi nieenkodowalnymi znakami zamiast wywalac caly proces."""
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):
+            pass  # brak reconfigure (np. przekierowany strumien) — pomijamy
 
 
 def _ensure_ffmpeg():
@@ -124,6 +139,7 @@ def build_ui() -> gr.Blocks:
 
 
 def main():
+    _force_utf8_io()  # zapobiega UnicodeEncodeError na konsoli PL (cp1250)
     _ensure_ffmpeg()  # pobierz/ustaw ffmpeg juz przy starcie
     # allowed_paths: pozwol Gradio serwowac pliki wynikowe z ~/StemSplitter (poza cwd/temp)
     out_dir = str(paths.ensure_data_dirs().base)
