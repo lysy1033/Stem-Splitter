@@ -26,7 +26,8 @@ rem [2/3] srodowisko + WSZYSTKIE zaleznosci (w tym ffmpeg przez pakiet pip 'stat
 rem w widocznym folderze %USERPROFILE%\StemSplitter. Brak winget.
 echo [2/3] Pobieram aplikacje (najdluzszy krok)... / Downloading the app (longest step)...
 set "VENV=%USERPROFILE%\StemSplitter\venv"
-uv venv "%VENV%" --python 3.11
+rem --clear: bezobslugowo (nie pyta, gdy venv juz istnieje)
+uv venv "%VENV%" --python 3.11 --clear
 
 where nvidia-smi >nul 2>nul
 if errorlevel 1 (

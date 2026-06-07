@@ -23,7 +23,8 @@ export PATH="$HOME/.local/bin:$PATH"
 # w widocznym folderze ~/StemSplitter (poza OneDrive). Brak Homebrew/Xcode.
 echo "[2/3] Pobieram aplikacje (najdluzszy krok)... / Downloading the app (longest step)..."
 VENV="$HOME/StemSplitter/venv"
-uv venv "$VENV" --python 3.11
+# --clear: bezobslugowo (nie pyta, gdy venv juz istnieje)
+uv venv "$VENV" --python 3.11 --clear
 # wariant akceleracji (Apple Silicon: cpu == CoreML)
 uv pip install --python "$VENV" "audio-separator[cpu]"
 # reszta zaleznosci z definicji projektu (pyproject.toml: gradio, pyyaml, yt-dlp, static-ffmpeg)
