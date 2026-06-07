@@ -1,0 +1,27 @@
+# Rejestr modeli. Wymiana modelu = zmiana 'file' (zero zmian w kodzie).
+# 'file' to nazwa modelu rozpoznawana przez audio-separator (pobiera sie sam).
+models:
+  htdemucs:
+    file: htdemucs.yaml
+    architecture: demucs
+    role: "4 stemy (wokal/bas/perkusja/inne)"
+  htdemucs_ft:
+    file: htdemucs_ft.yaml
+    architecture: demucs
+    role: "4 stemy fine-tuned (lepsza jakosc)"
+  htdemucs_6s:
+    file: htdemucs_6s.yaml
+    architecture: demucs
+    role: "6 stemow (dodaje gitare i pianino)"
+  roformer_vocals:
+    file: model_bs_roformer_ep_317_sdr_12.9755.ckpt
+    architecture: roformer
+    role: "izolacja wokalu (wokal + instrumental)"
+  roformer_karaoke:
+    file: mel_band_roformer_karaoke_aufr33_viperx_sdr_10.1956.ckpt
+    architecture: roformer
+    role: "rozbicie wokalu na lead + chorki"
+  drumsep:
+    file: drumsep.th
+    architecture: demucs
+    role: "rozbicie perkusji (stopa/werbel/talerze/tomy) - DO WERYFIKACJI"
