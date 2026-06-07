@@ -33,10 +33,13 @@ def test_run_pipeline_chains_stages_and_filters(monkeypatch, tmp_path):
         },
     }
 
+    seen_inputs: dict[str, str] = {}
+
     def fake_separate(model_file, input_path, output_dir):
         # zmapuj id modelu z pliku przez rejestr (odwrotnie) — uproszczone: po pliku
         reg = registry.load_registry()
         model_id = next(m.id for m in reg.values() if m.file == model_file)
+        seen_inputs[model_id] = input_path
         return {stem: str(Path(output_dir) / name)
                 for stem, name in fake_outputs[model_id].items()}
 
@@ -52,3 +55,8 @@ def test_run_pipeline_chains_stages_and_filters(monkeypatch, tmp_path):
     # tylko zadane stemy w wyniku
     assert set(result.keys()) == {"wokal", "gitara"}
     assert result["gitara"].endswith("g.wav")
+
+    # etap 1 otrzymuje oryginalny miks
+    assert seen_inputs["roformer_vocals"] == str(tmp_path / "song.wav")
+    # etap 2 otrzymuje instrumental wyprodukowany przez etap 1, nie oryginalny miks
+    assert seen_inputs["htdemucs_6s"] == str(Path(tmp_path) / "inst.wav")
