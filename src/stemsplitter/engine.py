@@ -32,13 +32,48 @@ def detect_acceleration() -> str:
     return "CPU"
 
 
-def _separate_with_model(model_file: str, input_path: str, output_dir: str) -> dict[str, str]:
-    """Realne wywolanie audio-separator. Zwraca {nazwa_stemu_z_separatora: sciezka}."""
+def _load_separator(model_file: str, output_dir: str):
+    """Tworzy Separator i wczytuje model (pobiera go, jesli go nie ma)."""
     from audio_separator.separator import Separator
 
     separator = Separator(output_dir=str(output_dir),
                           model_file_dir=str(paths.ensure_data_dirs().models))
     separator.load_model(model_filename=model_file)
+    return separator
+
+
+def _purge_model_files(model_file: str) -> list[str]:
+    """Kasuje (potencjalnie uszkodzony) plik modelu i pliki towarzyszace
+    (np. .yaml) o tej samej nazwie, by audio-separator pobral je od nowa."""
+    models_dir = paths.ensure_data_dirs().models
+    stem = Path(model_file).stem
+    removed: list[str] = []
+    for f in models_dir.glob(f"{stem}.*"):
+        try:
+            f.unlink()
+            removed.append(f.name)
+        except OSError:
+            pass
+    return removed
+
+
+def _separate_with_model(model_file: str, input_path: str, output_dir: str) -> dict[str, str]:
+    """Realne wywolanie audio-separator. Zwraca {nazwa_stemu_z_separatora: sciezka}.
+
+    Przerwane pobieranie zostawia czesciowy plik modelu, a audio-separator
+    sprawdza tylko jego OBECNOSC (nie integralnosc) -> przy nastepnym starcie
+    wczytanie uszkodzonego .ckpt pada. mdxc_separator sygnalizuje to wewnetrznym
+    sys.exit(1) (-> SystemExit); inne architektury moga rzucic RuntimeError.
+    Wtedy kasujemy plik(i) modelu i ponawiamy raz, wymuszajac czyste pobranie."""
+    try:
+        separator = _load_separator(model_file, output_dir)
+    except (SystemExit, RuntimeError):
+        removed = _purge_model_files(model_file)
+        if not removed:
+            raise  # nie bylo czego skasowac -> to nie problem z plikiem modelu
+        print(f"StemSplitter: uszkodzony model ({model_file}) usuniety, "
+              f"pobieram od nowa / corrupt model removed, re-downloading...")
+        separator = _load_separator(model_file, output_dir)  # czyste pobranie; blad propaguje
     files = separator.separate(str(input_path))
     out: dict[str, str] = {}
     for f in files:
