@@ -8,6 +8,15 @@ def test_parse_stem_name_from_filename():
     assert engine._parse_stem_name("noparen.wav") is None
 
 
+def test_parse_stem_name_cascade_takes_last_group():
+    # W kaskadzie wejscie etapu 2 juz zawiera nawias (np. (Instrumental));
+    # stem tego etapu to OSTATNIA grupa, nie pierwsza.
+    name = "song_(Instrumental)_bsroformer_(Bass)_htdemucs.wav"
+    assert engine._parse_stem_name(name) == "Bass"
+    name2 = "clip_(Vocals)_bsroformer_(Vocals)_mel_band_roformer_karaoke.wav"
+    assert engine._parse_stem_name(name2) == "Vocals"
+
+
 def test_detect_acceleration_cuda(monkeypatch):
     monkeypatch.setattr(engine, "_onnx_providers", lambda: ["CUDAExecutionProvider"])
     assert "CUDA" in engine.detect_acceleration()

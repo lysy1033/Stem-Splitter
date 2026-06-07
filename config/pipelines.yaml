@@ -32,10 +32,12 @@ extensions:
     stage:
       input: wokal
       model: roformer_karaoke
-      outputs: {Vocals: lead, "Backing Vocals": chorki}
+      # model karaoke zwraca lead jako 'Vocals', a chorki jako 'Instrumental'
+      outputs: {Vocals: lead, Instrumental: chorki}
   perkusja_elementy:
     requires: perkusja
     stage:
       input: perkusja
       model: drumsep
-      outputs: {Kick: stopa, Snare: werbel, Cymbals: talerze, Toms: tomy}
+      # realne stemy DrumSep (male litery): kick/snare/toms/hh/ride/crash
+      outputs: {kick: stopa, snare: werbel, toms: tomy, hh: hihat, ride: ride, crash: crash}

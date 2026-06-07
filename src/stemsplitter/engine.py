@@ -8,8 +8,11 @@ _STEM_RE = re.compile(r"\(([^)]+)\)")
 
 
 def _parse_stem_name(filename: str) -> str | None:
+    # audio-separator dokleja stem na koncu: input_(Stem)_model.wav.
+    # W kaskadzie nazwa wejscia juz zawiera nawias (np. (Instrumental)),
+    # wiec stem tego etapu to OSTATNIA grupa w nawiasie, nie pierwsza.
     matches = _STEM_RE.findall(Path(filename).name)
-    return matches[0] if matches else None
+    return matches[-1] if matches else None
 
 
 def _onnx_providers() -> list[str]:

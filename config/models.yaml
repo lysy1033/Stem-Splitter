@@ -22,6 +22,6 @@ models:
     architecture: roformer
     role: "rozbicie wokalu na lead + chorki"
   drumsep:
-    file: drumsep.th
-    architecture: demucs
-    role: "rozbicie perkusji (stopa/werbel/talerze/tomy) - DO WERYFIKACJI"
+    file: MDX23C-DrumSep-aufr33-jarredou.ckpt
+    architecture: mdxc
+    role: "rozbicie perkusji (kick/snare/toms/hh/ride/crash)"

@@ -40,7 +40,7 @@ def separate(file_path, url, chosen_stems, preset_key, split_vocals, split_drums
         requested += ["lead", "chorki"]
     if split_drums and "perkusja" in chosen_stems:
         extensions.append("perkusja_elementy")
-        requested += ["stopa", "werbel", "talerze", "tomy"]
+        requested += ["stopa", "werbel", "tomy", "hihat", "ride", "crash"]
 
     pipe = pipeline.load_preset(preset_key, extensions=extensions)
     accel = engine.detect_acceleration()
