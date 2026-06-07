@@ -3,7 +3,9 @@ from pathlib import Path
 
 
 def _base_dir() -> Path:
-    return Path.home() / ".stem-splitter"
+    # Widoczny folder w katalogu domowym (NIE ukryty, NIE w OneDrive),
+    # zeby uzytkownik bez problemu znalazl swoje pliki wynikowe.
+    return Path.home() / "StemSplitter"
 
 
 @dataclass(frozen=True)

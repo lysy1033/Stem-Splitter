@@ -7,6 +7,16 @@ from . import engine, media, paths, pipeline, youtube
 from .i18n import PRESET_KEYS, STEM_KEYS, TEXT, pick_lang
 
 
+def _ensure_ffmpeg():
+    """Dodaje ffmpeg/ffprobe (z pakietu static-ffmpeg) do PATH, jezeli sa.
+    Dzieki temu nie trzeba instalowac ffmpeg systemowo (brak Homebrew/winget)."""
+    try:
+        import static_ffmpeg
+        static_ffmpeg.add_paths()  # 1. wywolanie pobiera binaria
+    except Exception:
+        pass  # gdy systemowy ffmpeg jest na PATH, tez zadziala
+
+
 def _zip_results(result: dict[str, str], output_dir: Path) -> str:
     zip_path = output_dir / "stems.zip"
     with zipfile.ZipFile(zip_path, "w") as z:
@@ -21,6 +31,7 @@ def separate(file_path, url, chosen_stems, preset_key, split_vocals, split_drums
     if not chosen_stems:
         raise gr.Error(t["err_no_stem"])
 
+    _ensure_ffmpeg()
     dirs = paths.ensure_data_dirs()
     if url and url.strip():
         progress(0.05, desc=t["dl"])
@@ -108,6 +119,7 @@ def build_ui() -> gr.Blocks:
 
 
 def main():
+    _ensure_ffmpeg()  # pobierz/ustaw ffmpeg juz przy starcie
     build_ui().launch(inbrowser=True)
 
 

@@ -1,9 +1,8 @@
 # 🎵 StemSplitter
 
-Simple, free, fully local stem separator for **MP3 and MP4** files (or a **YouTube link**).
-Runs on macOS (Apple Silicon), Windows (NVIDIA GPU) and Windows (CPU only).
-The browser UI is bilingual (English / Polish) and switches automatically based on your
-browser language.
+Split any song into separate tracks (vocals, drums, bass, guitar, piano…) on your own computer —
+**for free**. Works with **MP3 / MP4 files or a YouTube link**. The app opens in your web browser
+and speaks **English and Polish** (it picks your language automatically).
 
 **[English](#english) · [Polski](#polski)**
 
@@ -11,194 +10,159 @@ browser language.
 
 ## English
 
-### What it does
+### What you get
 
-Splits a song (MP3), a video's audio track (MP4), or audio from a **YouTube link** into separate
-stems — vocals, drums, bass, guitar, piano, other — using the best free open-source AI models
-(Demucs, RoFormer). It can optionally split vocals into lead + backing, and drums into
-kick/snare/cymbals/toms. While it works it shows which model is running and the progress.
+Drop in a song and get back separate audio files — vocals, drums, bass, guitar, piano, and the
+rest — neatly zipped. Optionally split vocals into lead + backing, or drums into
+kick/snare/toms/hi-hat/ride/crash. You pick the quality; the app shows what it's doing and how far
+along it is.
 
-### Requirements
+### Get started — macOS (3 steps)
 
-- macOS (Apple Silicon recommended) **or** Windows 10/11.
-- ~3–5 GB free disk space (Python env + AI models, downloaded on first use).
-- Internet connection on first run (to download models).
+1. **Download the app.** On the project's GitHub page click the green **Code** button →
+   **Download ZIP**. Double-click the downloaded ZIP to unzip it. Open the unzipped folder.
+2. **Open the `installers` folder and double-click `install-mac.command`.**
+   - If macOS says *"cannot be opened because it is from an unidentified developer"*:
+     **right-click** the file → **Open** → **Open**. (You only do this once.)
+3. **Wait.** A black window shows the progress. When it's done, **StemSplitter opens in your web
+   browser by itself.** First time only, it downloads the AI brains — that's the longest part.
 
-Everything heavy (Python environment, models, output files) is stored in `~/.stem-splitter/`,
-**outside** any OneDrive-synced folder.
+Next time, just double-click **`run-mac.command`** to start it again.
 
-### Before you install (prerequisites)
+### Get started — Windows (3 steps)
 
-The installer automatically sets up Python, `ffmpeg` and `yt-dlp` for you. You only need a few
-basics in place first:
+1. **Download the app.** On the project's GitHub page click the green **Code** button →
+   **Download ZIP**. Right-click the ZIP → **Extract All**. Open the extracted folder.
+2. **Open the `installers` folder and double-click `install-windows.bat`.**
+   - If a blue "Windows protected your PC" box appears, click **More info** → **Run anyway**.
+   - It automatically uses your **NVIDIA** graphics card if you have one (faster), otherwise it
+     runs on the processor.
+3. **Wait.** A black window shows the progress. When it's done, **StemSplitter opens in your web
+   browser by itself.** First time only, it downloads the AI brains — that's the longest part.
 
-**macOS**
-- **Command Line Tools** (needed so Homebrew/curl work). Install once by running in Terminal:
-  ```
-  xcode-select --install
-  ```
-- That's it — the installer brings in Homebrew (if missing), `uv`, Python, `ffmpeg`.
+Next time, just double-click **`run-windows.bat`** to start it again.
 
-**Windows 10/11**
-- **App Installer (winget)** — preinstalled on Windows 10/11. If `winget` is missing, install
-  "App Installer" from the Microsoft Store.
-- **NVIDIA GPU users:** make sure your normal NVIDIA driver is installed (so `nvidia-smi` works).
-  You do **not** need to install CUDA separately — the right build is fetched automatically.
-- That's it — the installer brings in `uv`, Python, `ffmpeg`.
+> The installer sets up everything it needs by itself (no separate downloads to chase).
+> It needs an internet connection and about 3–5 GB of free disk space.
 
-**Both systems**
-- Get the project files: either download the ZIP from GitHub (green **Code** button →
-  **Download ZIP**) and unzip, or, if you use git, `git clone` the repository.
+### Where are my files?
 
-### Installation
+Everything the app makes — and your separated tracks — goes into a plain, visible folder called
+**`StemSplitter`** in your home/user folder (e.g. `/Users/yourname/StemSplitter` on Mac,
+`C:\Users\yourname\StemSplitter` on Windows). Your finished stems are in the `output` subfolder.
+Nothing is hidden, and nothing is put in your OneDrive.
 
-1. Download/clone this project to a folder (see prerequisites above).
-2. Run the installer for your system — **just double-click it**:
-   - **macOS:** `installers/install-mac.command`
-     (if macOS blocks it: right-click → Open → Open; or run `bash installers/install-mac.command`)
-   - **Windows:** `installers/install-windows.bat`
-     (it auto-detects an NVIDIA card and installs the GPU build, otherwise the CPU build)
-3. The installer sets up Python (via `uv`), all libraries, `ffmpeg` and `yt-dlp`. Wait until it
-   prints **Done**.
+### How to use it
 
-### Running
+1. **Give it a song** — either drag in an **MP3/MP4 file**, or **paste a YouTube link**.
+2. **Tick the tracks** you want (vocals, drums, bass, guitar, piano, other).
+3. **Choose quality** (see below).
+4. *(Optional)* turn on **split vocals into lead + backing** and/or **split drums into elements**.
+5. Click **Separate**, wait, then **download the ZIP** with your tracks.
 
-- **macOS:** double-click `installers/run-mac.command`
-- **Windows:** double-click `installers/run-windows.bat`
+> Only download from YouTube for your own lawful use; respect copyright and YouTube's Terms.
 
-The app opens in your web browser. **The first separation downloads the AI models — this can
-take a few minutes. Later runs are fast.**
+### Quality options
 
-### How to use
+- **Fast** — quick, 4 tracks (vocals/drums/bass/other).
+- **Best quality** — cleaner, a little slower (recommended for most songs).
+- **Maximum** — does two passes so **guitar and other instruments come out clearer**. Slowest.
 
-1. Provide input — either **drag & drop an MP3/MP4 file**, or **paste a YouTube link**
-   (the audio is downloaded locally first). If both are given, the link wins.
-2. Tick the **stems** you want (vocals, drums, bass, guitar, piano, other).
-3. Pick a **quality** preset (see below).
-4. (Optional) enable **Split vocals into lead + backing** and/or
-   **Split drums into elements**.
-5. Click **Separate**. When it finishes, download the **ZIP** with your stems.
+### Good to know about quality
 
-> YouTube downloading is for your own lawful use only; respect copyright and YouTube's Terms.
+Vocals, bass and drums come out best. Guitar, piano, backing vocals and individual drum pieces are
+harder for any AI — results are good, but not studio-perfect.
 
-### Quality presets
+### If something goes wrong
 
-- **Fast** — `htdemucs`, 4 stems. Quickest.
-- **Best quality** — `htdemucs_ft` (fine-tuned). Cleaner, a bit slower.
-- **Maximum (cascade)** — RoFormer isolates clean vocals first, then `htdemucs_6s` runs on the
-  vocal-free instrumental → noticeably better **guitar** and other instruments. Slowest.
+- **The black window closed instantly / nothing happened** — re-open it: right-click the installer
+  → Open (Mac), or More info → Run anyway (Windows).
+- **It looks stuck on the first run** — it's downloading the AI models; watch the progress text,
+  it will continue.
+- **No NVIDIA graphics card on Windows** — that's fine, it still works, just slower (a song can
+  take a few minutes).
 
-### Notes on quality
+### For advanced users — swapping models
 
-Vocals, bass and drums separate best. Guitar, piano, backing vocals and individual drum
-elements are inherently harder — results are good but not studio-perfect.
-
-### Swapping / adding models (advanced)
-
-Models and presets are declared in YAML, no code changes needed:
-- `config/models.yaml` — the model registry (id → model file).
-- `config/pipelines.yaml` — presets and optional extensions, defined as pipeline stages.
-
-### Troubleshooting
-
-- **"ffmpeg not found"** — re-run the installer; it installs ffmpeg.
-- **First run seems frozen** — it's downloading models; watch the progress text.
-- **Slow on Windows CPU** — expected; a separation can take several minutes without a GPU.
+Models and the quality presets are plain text files; change them without touching code:
+`config/models.yaml` (which model) and `config/pipelines.yaml` (the steps each preset runs).
 
 ---
 
 ## Polski
 
-### Co to robi
+### Co dostajesz
 
-Rozdziela utwór (MP3), ścieżkę dźwiękową z wideo (MP4) albo audio z **linku YouTube** na osobne
-stemy — wokal, perkusja, bas, gitara, pianino, reszta — przy użyciu najlepszych darmowych modeli
-open source (Demucs, RoFormer). Opcjonalnie potrafi rozbić wokal na lead + chórki, a perkusję na
-stopę/werbel/talerze/tomy. W trakcie pracy pokazuje, który model działa, oraz postęp.
+Wrzucasz utwór i dostajesz osobne pliki audio — wokal, perkusja, bas, gitara, pianino i reszta —
+spakowane w ZIP. Opcjonalnie wokal na lead + chórki, a perkusję na
+stopę/werbel/tomy/hi-hat/ride/crash. Wybierasz jakość; aplikacja pokazuje, co robi i ile zostało.
 
-### Wymagania
+### Zacznij — macOS (3 kroki)
 
-- macOS (najlepiej Apple Silicon) **lub** Windows 10/11.
-- ~3–5 GB wolnego miejsca (środowisko Pythona + modele AI pobierane przy pierwszym użyciu).
-- Internet przy pierwszym uruchomieniu (do pobrania modeli).
+1. **Pobierz aplikację.** Na stronie projektu na GitHubie kliknij zielony przycisk **Code** →
+   **Download ZIP**. Kliknij dwukrotnie pobrany ZIP, żeby go rozpakować. Otwórz rozpakowany folder.
+2. **Wejdź do folderu `installers` i kliknij dwukrotnie `install-mac.command`.**
+   - Jeśli macOS napisze *„nie można otworzyć, bo pochodzi od niezidentyfikowanego dewelopera"*:
+     **kliknij plik prawym przyciskiem** → **Otwórz** → **Otwórz**. (Robisz to tylko raz.)
+3. **Poczekaj.** Czarne okno pokazuje postęp. Po zakończeniu **StemSplitter sam otworzy się w
+   przeglądarce.** Tylko za pierwszym razem pobiera „mózgi" AI — to najdłuższy etap.
 
-Wszystko ciężkie (środowisko Pythona, modele, pliki wynikowe) trafia do `~/.stem-splitter/`,
-**poza** folderem synchronizowanym przez OneDrive.
+Następnym razem po prostu kliknij dwukrotnie **`run-mac.command`**.
 
-### Zanim zainstalujesz (wymagania wstępne)
+### Zacznij — Windows (3 kroki)
 
-Instalator automatycznie stawia Pythona, `ffmpeg` i `yt-dlp`. Wcześniej potrzebujesz tylko kilku
-podstaw:
+1. **Pobierz aplikację.** Na stronie projektu na GitHubie kliknij zielony przycisk **Code** →
+   **Download ZIP**. Kliknij ZIP prawym przyciskiem → **Wyodrębnij wszystko**. Otwórz folder.
+2. **Wejdź do folderu `installers` i kliknij dwukrotnie `install-windows.bat`.**
+   - Jeśli pojawi się niebieskie okno „System Windows ochronił Twój komputer", kliknij
+     **Więcej informacji** → **Uruchom mimo to**.
+   - Automatycznie użyje karty **NVIDIA**, jeśli ją masz (szybciej), w przeciwnym razie procesora.
+3. **Poczekaj.** Czarne okno pokazuje postęp. Po zakończeniu **StemSplitter sam otworzy się w
+   przeglądarce.** Tylko za pierwszym razem pobiera „mózgi" AI — to najdłuższy etap.
 
-**macOS**
-- **Command Line Tools** (potrzebne, by działał Homebrew/curl). Zainstaluj raz w Terminalu:
-  ```
-  xcode-select --install
-  ```
-- To wszystko — instalator dociągnie Homebrew (jeśli go nie ma), `uv`, Pythona, `ffmpeg`.
+Następnym razem po prostu kliknij dwukrotnie **`run-windows.bat`**.
 
-**Windows 10/11**
-- **App Installer (winget)** — wbudowany w Windows 10/11. Jeśli `winget` nie działa, zainstaluj
-  „App Installer" ze sklepu Microsoft Store.
-- **Karty NVIDIA:** upewnij się, że masz zainstalowany zwykły sterownik NVIDIA (żeby działało
-  `nvidia-smi`). **Nie** musisz osobno instalować CUDA — właściwa wersja pobierze się sama.
-- To wszystko — instalator dociągnie `uv`, Pythona, `ffmpeg`.
+> Instalator sam ustawia wszystko, czego potrzebuje (nie musisz nic dodatkowo szukać i pobierać).
+> Potrzebny jest internet i około 3–5 GB wolnego miejsca na dysku.
 
-**Oba systemy**
-- Pobierz pliki projektu: albo ZIP z GitHuba (zielony przycisk **Code** → **Download ZIP**)
-  i rozpakuj, albo `git clone`, jeśli używasz gita.
+### Gdzie są moje pliki?
 
-### Instalacja
-
-1. Pobierz/sklonuj ten projekt do folderu (patrz wymagania wstępne wyżej).
-2. Uruchom instalator dla swojego systemu — **wystarczy dwuklik**:
-   - **macOS:** `installers/install-mac.command`
-     (jeśli macOS zablokuje: prawy przycisk → Otwórz → Otwórz; albo `bash installers/install-mac.command`)
-   - **Windows:** `installers/install-windows.bat`
-     (sam wykrywa kartę NVIDIA i instaluje wersję GPU, w przeciwnym razie wersję CPU)
-3. Instalator stawia Pythona (przez `uv`), wszystkie biblioteki, `ffmpeg` i `yt-dlp`. Poczekaj aż
-   wypisze **Gotowe**.
-
-### Uruchamianie
-
-- **macOS:** dwuklik `installers/run-mac.command`
-- **Windows:** dwuklik `installers/run-windows.bat`
-
-Aplikacja otworzy się w przeglądarce. **Pierwsza separacja pobiera modele AI — to może potrwać
-kilka minut. Kolejne są szybkie.**
+Wszystko, co tworzy aplikacja — i Twoje rozdzielone ścieżki — trafia do zwykłego, **widocznego**
+folderu **`StemSplitter`** w Twoim katalogu domowym (np. `/Users/twojeimie/StemSplitter` na Macu,
+`C:\Users\twojeimie\StemSplitter` na Windows). Gotowe stemy są w podfolderze `output`. Nic nie jest
+ukryte i nic nie ląduje w OneDrive.
 
 ### Jak używać
 
-1. Podaj wejście — albo **przeciągnij i upuść plik MP3/MP4**, albo **wklej link YouTube**
-   (audio zostanie najpierw pobrane lokalnie). Jeśli podasz oba, wygrywa link.
-2. Zaznacz **stemy**, które chcesz dostać (wokal, perkusja, bas, gitara, pianino, reszta).
-3. Wybierz **preset jakości** (poniżej).
-4. (Opcjonalnie) włącz **Rozbij wokal na lead + chórki** i/lub
-   **Rozbij perkusję na elementy**.
-5. Kliknij **Rozdziel**. Po zakończeniu pobierz **ZIP** ze stemami.
+1. **Podaj utwór** — przeciągnij **plik MP3/MP4** albo **wklej link YouTube**.
+2. **Zaznacz ścieżki**, które chcesz (wokal, perkusja, bas, gitara, pianino, reszta).
+3. **Wybierz jakość** (poniżej).
+4. *(Opcjonalnie)* włącz **rozbij wokal na lead + chórki** i/lub **rozbij perkusję na elementy**.
+5. Kliknij **Rozdziel**, poczekaj i **pobierz ZIP** ze ścieżkami.
 
-> Pobieranie z YouTube wyłącznie do własnego, legalnego użytku; szanuj prawa autorskie i regulamin YouTube.
+> Pobieraj z YouTube tylko do własnego, legalnego użytku; szanuj prawa autorskie i regulamin YouTube.
 
-### Presety jakości
+### Opcje jakości
 
-- **Szybko** — `htdemucs`, 4 stemy. Najszybszy.
-- **Najlepsza jakość** — `htdemucs_ft` (fine-tuned). Czystszy, trochę wolniejszy.
-- **Maksymalna (kaskada)** — najpierw RoFormer wyciąga czysty wokal, potem `htdemucs_6s`
-  działa na instrumentalu bez wokalu → wyraźnie lepsza **gitara** i inne instrumenty. Najwolniejszy.
+- **Szybko** — szybkie, 4 ścieżki (wokal/perkusja/bas/reszta).
+- **Najlepsza jakość** — czystsze, trochę wolniejsze (polecane do większości utworów).
+- **Maksymalna** — robi dwa przejścia, dzięki czemu **gitara i inne instrumenty wychodzą czyściej**.
+  Najwolniejsze.
 
-### Uwagi o jakości
+### Warto wiedzieć o jakości
 
-Najlepiej wychodzą wokal, bas i perkusja. Gitara, pianino, chórki i pojedyncze elementy
-perkusji są trudniejsze — wyniki są dobre, ale nie idealne studyjnie.
+Najlepiej wychodzą wokal, bas i perkusja. Gitara, pianino, chórki i pojedyncze elementy perkusji są
+trudniejsze dla każdego AI — wyniki są dobre, ale nie idealne studyjnie.
 
-### Wymiana / dodawanie modeli (zaawansowane)
+### Gdy coś nie działa
 
-Modele i presety opisane są w YAML, bez zmian w kodzie:
-- `config/models.yaml` — rejestr modeli (id → plik modelu).
-- `config/pipelines.yaml` — presety i opcjonalne rozszerzenia jako etapy pipeline.
+- **Czarne okno zamknęło się od razu / nic się nie stało** — otwórz ponownie: prawy przycisk na
+  instalatorze → Otwórz (Mac), albo Więcej informacji → Uruchom mimo to (Windows).
+- **Wygląda, jakby się zawiesiło przy pierwszym razie** — pobiera modele AI; popatrz na tekst
+  postępu, za chwilę ruszy dalej.
+- **Brak karty NVIDIA na Windows** — to nic, też działa, tylko wolniej (utwór może zająć kilka minut).
 
-### Rozwiązywanie problemów
+### Dla zaawansowanych — wymiana modeli
 
-- **„ffmpeg not found"** — uruchom instalator ponownie; instaluje ffmpeg.
-- **Pierwsze uruchomienie wygląda na zawieszone** — pobiera modele; patrz na tekst postępu.
-- **Wolno na Windows CPU** — to normalne; separacja bez GPU może trwać kilka minut.
+Modele i presety jakości to zwykłe pliki tekstowe; zmieniasz je bez ruszania kodu:
+`config/models.yaml` (jaki model) i `config/pipelines.yaml` (kroki każdego presetu).
