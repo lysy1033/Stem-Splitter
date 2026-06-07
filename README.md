@@ -22,8 +22,20 @@ along it is.
 1. **Download the app.** On the project's GitHub page click the green **Code** button →
    **Download ZIP**. Double-click the downloaded ZIP to unzip it. Open the unzipped folder.
 2. **Open the `installers` folder and double-click `install-mac.command`.**
-   - If macOS says *"cannot be opened because it is from an unidentified developer"*:
-     **right-click** the file → **Open** → **Open**. (You only do this once.)
+
+   The first time, macOS will probably block it (it's not from the App Store). If you only see
+   **"Move to Trash" / "Done"** and no way to open it, use **one** of these (just once):
+
+   - **Easiest — no Terminal:** in the warning click **Done**. Open
+     **System Settings → Privacy & Security**, scroll down to the line
+     *"install-mac.command was blocked…"* and click **Open Anyway**, then confirm with **Open**
+     and your password / Touch ID. Double-click the file again if needed.
+   - **Always works — Terminal:** open the **Terminal** app (Spotlight → type *Terminal*),
+     type `bash` followed by a space, then **drag the `install-mac.command` file into the Terminal
+     window** and press **Enter**.
+
+   *(The old "right-click → Open" trick no longer shows an Open button on recent macOS — use one
+   of the two methods above.)*
 3. **Wait.** A black window shows the progress. When it's done, **StemSplitter opens in your web
    browser by itself.** First time only, it downloads the AI brains — that's the longest part.
 
@@ -75,8 +87,10 @@ harder for any AI — results are good, but not studio-perfect.
 
 ### If something goes wrong
 
-- **The black window closed instantly / nothing happened** — re-open it: right-click the installer
-  → Open (Mac), or More info → Run anyway (Windows).
+- **macOS only offers "Move to Trash" / "Done"** — that's the security block; follow the two
+  methods in step 2 above (System Settings → Privacy & Security → **Open Anyway**, or run it from
+  Terminal with `bash` + dragging the file).
+- **The black window closed instantly / nothing happened** — on Windows: More info → Run anyway.
 - **It looks stuck on the first run** — it's downloading the AI models; watch the progress text,
   it will continue.
 - **No NVIDIA graphics card on Windows** — that's fine, it still works, just slower (a song can
@@ -102,8 +116,21 @@ stopę/werbel/tomy/hi-hat/ride/crash. Wybierasz jakość; aplikacja pokazuje, co
 1. **Pobierz aplikację.** Na stronie projektu na GitHubie kliknij zielony przycisk **Code** →
    **Download ZIP**. Kliknij dwukrotnie pobrany ZIP, żeby go rozpakować. Otwórz rozpakowany folder.
 2. **Wejdź do folderu `installers` i kliknij dwukrotnie `install-mac.command`.**
-   - Jeśli macOS napisze *„nie można otworzyć, bo pochodzi od niezidentyfikowanego dewelopera"*:
-     **kliknij plik prawym przyciskiem** → **Otwórz** → **Otwórz**. (Robisz to tylko raz.)
+
+   Za pierwszym razem macOS prawdopodobnie to zablokuje (plik nie jest ze sklepu App Store).
+   Jeśli widzisz tylko **„Przenieś do Kosza" / „Gotowe"** i nie da się otworzyć, użyj **jednej**
+   z poniższych metod (tylko raz):
+
+   - **Najprościej — bez Terminala:** w ostrzeżeniu kliknij **Gotowe**. Otwórz
+     **Ustawienia systemowe → Prywatność i bezpieczeństwo**, zjedź na dół do napisu
+     *„Plik install-mac.command został zablokowany…"* i kliknij **Otwórz mimo to**, potem
+     potwierdź **Otwórz** hasłem / Touch ID. W razie potrzeby kliknij plik dwukrotnie jeszcze raz.
+   - **Zawsze działa — Terminal:** otwórz program **Terminal** (Spotlight → wpisz *Terminal*),
+     wpisz `bash` i spację, a następnie **przeciągnij plik `install-mac.command` na okno Terminala**
+     i naciśnij **Enter**.
+
+   *(Dawna sztuczka „prawy klik → Otwórz" na nowszym macOS nie pokazuje już przycisku Otwórz —
+   użyj jednej z dwóch metod powyżej.)*
 3. **Poczekaj.** Czarne okno pokazuje postęp. Po zakończeniu **StemSplitter sam otworzy się w
    przeglądarce.** Tylko za pierwszym razem pobiera „mózgi" AI — to najdłuższy etap.
 
@@ -156,8 +183,11 @@ trudniejsze dla każdego AI — wyniki są dobre, ale nie idealne studyjnie.
 
 ### Gdy coś nie działa
 
-- **Czarne okno zamknęło się od razu / nic się nie stało** — otwórz ponownie: prawy przycisk na
-  instalatorze → Otwórz (Mac), albo Więcej informacji → Uruchom mimo to (Windows).
+- **macOS daje tylko „Przenieś do Kosza" / „Gotowe"** — to blokada bezpieczeństwa; użyj dwóch
+  metod z kroku 2 powyżej (Ustawienia systemowe → Prywatność i bezpieczeństwo → **Otwórz mimo to**,
+  albo uruchom z Terminala: `bash` + przeciągnięcie pliku).
+- **Czarne okno zamknęło się od razu / nic się nie stało** — na Windows: Więcej informacji →
+  Uruchom mimo to.
 - **Wygląda, jakby się zawiesiło przy pierwszym razie** — pobiera modele AI; popatrz na tekst
   postępu, za chwilę ruszy dalej.
 - **Brak karty NVIDIA na Windows** — to nic, też działa, tylko wolniej (utwór może zająć kilka minut).
