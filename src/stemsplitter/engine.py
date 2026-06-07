@@ -48,8 +48,12 @@ def _separate_with_model(model_file: str, input_path: str, output_dir: str) -> d
     return out
 
 
-def run_pipeline(input_path, pipe: Pipeline, requested_stems: list[str],
-                 output_dir, progress_cb=None) -> dict[str, str]:
+def run_pipeline_steps(input_path, pipe: Pipeline, requested_stems: list[str], output_dir):
+    """Generator wykonujacy pipeline etap po etapie.
+
+    Przed kazdym etapem oddaje ('stage', done, total, model_id), a na koncu
+    ('result', {stem: sciezka}). Pozwala UI pokazywac, na ktorym etapie jestesmy.
+    """
     reg = registry.load_registry()
     output_dir = Path(output_dir)
     # mapa: nazwa_kanoniczna -> sciezka pliku
@@ -57,8 +61,7 @@ def run_pipeline(input_path, pipe: Pipeline, requested_stems: list[str],
 
     total = len(pipe.stages)
     for i, stage in enumerate(pipe.stages):
-        if progress_cb is not None:
-            progress_cb(i, total, stage.model_id)
+        yield ("stage", i, total, stage.model_id)
         stage_input = produced.get(stage.input)
         if stage_input is None:
             raise ValueError(f"Etap wymaga wejscia '{stage.input}', ktorego brak")
@@ -68,4 +71,17 @@ def run_pipeline(input_path, pipe: Pipeline, requested_stems: list[str],
             if sep_name in raw:
                 produced[canonical] = raw[sep_name]
 
-    return {stem: produced[stem] for stem in requested_stems if stem in produced}
+    yield ("result", {stem: produced[stem] for stem in requested_stems if stem in produced})
+
+
+def run_pipeline(input_path, pipe: Pipeline, requested_stems: list[str],
+                 output_dir, progress_cb=None) -> dict[str, str]:
+    """Cienka nakladka na run_pipeline_steps (zachowuje stare API i progress_cb)."""
+    result: dict[str, str] = {}
+    for event in run_pipeline_steps(input_path, pipe, requested_stems, output_dir):
+        if event[0] == "stage":
+            if progress_cb is not None:
+                progress_cb(event[1], event[2], event[3])
+        elif event[0] == "result":
+            result = event[1]
+    return result

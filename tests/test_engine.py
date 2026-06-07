@@ -71,6 +71,21 @@ def test_run_pipeline_chains_stages_and_filters(monkeypatch, tmp_path):
     assert seen_inputs["htdemucs_6s"] == str(Path(tmp_path) / "inst.wav")
 
 
+def test_run_pipeline_steps_yields_stages_then_result(monkeypatch, tmp_path):
+    def fake_separate(model_file, input_path, output_dir):
+        reg = registry.load_registry()
+        mid = next(m.id for m in reg.values() if m.file == model_file)
+        return {"Instrumental": "x.wav"} if mid == "roformer_vocals" else {"Guitar": "g.wav"}
+
+    monkeypatch.setattr(engine, "_separate_with_model", fake_separate)
+    p = pipeline.load_preset("maksymalna")
+    events = list(engine.run_pipeline_steps(tmp_path / "s.wav", p, ["gitara"], output_dir=tmp_path))
+    assert [e[0] for e in events] == ["stage", "stage", "result"]
+    assert events[0][1:] == (0, 2, "roformer_vocals")
+    assert events[1][1:] == (1, 2, "htdemucs_6s")
+    assert events[-1][1]["gitara"].endswith("g.wav")
+
+
 def test_run_pipeline_reports_progress_per_stage(monkeypatch, tmp_path):
     def fake_separate(model_file, input_path, output_dir):
         from stemsplitter import registry

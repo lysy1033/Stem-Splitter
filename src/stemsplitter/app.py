@@ -27,8 +27,8 @@ def _zip_results(result: dict[str, str], output_dir: Path) -> str:
 
 def separate(file_path, url, chosen_stems, preset_key, split_vocals, split_drums, lang,
              progress=gr.Progress(track_tqdm=True)):
-    # track_tqdm=True: pasek postepu podaza za wewnetrznym tqdm audio-separator
-    # (to, co widac w terminalu), wiec nie stoi w miejscu podczas separacji.
+    # Generator: na biezaco aktualizuje TRWALA linie statusu (ktory etap) + plik na koncu.
+    # track_tqdm=True: pasek postepu podaza za wewnetrznym tqdm modelu (ruch w trakcie etapu).
     t = TEXT.get(lang, TEXT["en"])
     if not chosen_stems:
         raise gr.Error(t["err_no_stem"])
@@ -36,14 +36,14 @@ def separate(file_path, url, chosen_stems, preset_key, split_vocals, split_drums
     _ensure_ffmpeg()
     dirs = paths.ensure_data_dirs()
     if url and url.strip():
-        progress(0.05, desc=t["dl"])
+        yield t["dl"], None
         source = youtube.download_audio(url.strip(), dirs.work)
     elif file_path:
         source = Path(file_path)
     else:
         raise gr.Error(t["err_no_input"])
 
-    progress(0.1, desc=t["prep"])
+    yield t["prep"], None
     prepared = media.prepare_input(source, work_dir=dirs.work)
 
     extensions = []
@@ -57,18 +57,19 @@ def separate(file_path, url, chosen_stems, preset_key, split_vocals, split_drums
 
     pipe = pipeline.load_preset(preset_key, extensions=extensions)
     accel = engine.detect_acceleration()
-    progress(0.3, desc=t["sep"].format(accel=accel))
 
-    def on_stage(done: int, total: int, model_id: str):
-        # postep rosnie z kazdym etapem kaskady; pokazujemy ktory model pracuje
-        frac = 0.3 + 0.6 * (done / total)
-        progress(frac, desc=t["sep_stage"].format(n=done + 1, total=total,
-                                                   model=model_id, accel=accel))
+    result: dict[str, str] = {}
+    for event in engine.run_pipeline_steps(prepared, pipe, requested, output_dir=dirs.output):
+        if event[0] == "stage":
+            _, idx, total, model_id = event
+            label = t["stage_labels"].get(model_id, model_id)
+            yield t["sep_stage"].format(n=idx + 1, total=total, label=label, accel=accel), None
+        else:
+            result = event[1]
 
-    result = engine.run_pipeline(prepared, pipe, requested, output_dir=dirs.output,
-                                 progress_cb=on_stage)
-    progress(0.95, desc=t["pack"])
-    return _zip_results(result, dirs.output)
+    yield t["pack"], None
+    zip_path = _zip_results(result, dirs.output)
+    yield t["done"], zip_path
 
 
 def _localize(request: gr.Request):
@@ -110,10 +111,12 @@ def build_ui() -> gr.Blocks:
         split_vocals = gr.Checkbox(label=en["split_vocals"], value=False)
         split_drums = gr.Checkbox(label=en["split_drums"], value=False)
         btn = gr.Button(en["run"], variant="primary")
+        status = gr.Markdown("")  # trwala informacja o biezacym etapie
         out = gr.File(label=en["result"])
 
         btn.click(separate,
-                  [file_in, url_in, stems, preset, split_vocals, split_drums, lang_state], out)
+                  [file_in, url_in, stems, preset, split_vocals, split_drums, lang_state],
+                  [status, out])
         demo.load(_localize, None,
                   [lang_state, header, file_in, url_in, stems, preset,
                    split_vocals, split_drums, btn, out])
