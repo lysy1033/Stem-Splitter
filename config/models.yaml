@@ -18,9 +18,9 @@ models:
     architecture: roformer
     role: "izolacja wokalu (wokal + instrumental)"
   roformer_karaoke:
-    file: mel_band_roformer_karaoke_aufr33_viperx_sdr_10.1956.ckpt
+    file: mel_band_roformer_karaoke_becruily.ckpt
     architecture: roformer
-    role: "rozbicie wokalu na lead + chorki"
+    role: "rozbicie wokalu na lead + chorki (becruily, nowszy niz aufr33)"
   drumsep:
     file: MDX23C-DrumSep-aufr33-jarredou.ckpt
     architecture: mdxc
