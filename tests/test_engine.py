@@ -60,3 +60,22 @@ def test_run_pipeline_chains_stages_and_filters(monkeypatch, tmp_path):
     assert seen_inputs["roformer_vocals"] == str(tmp_path / "song.wav")
     # etap 2 otrzymuje instrumental wyprodukowany przez etap 1, nie oryginalny miks
     assert seen_inputs["htdemucs_6s"] == str(Path(tmp_path) / "inst.wav")
+
+
+def test_run_pipeline_reports_progress_per_stage(monkeypatch, tmp_path):
+    def fake_separate(model_file, input_path, output_dir):
+        from stemsplitter import registry
+        reg = registry.load_registry()
+        model_id = next(m.id for m in reg.values() if m.file == model_file)
+        # etap 1 musi zwrocic 'Instrumental' zeby etap 2 mial wejscie
+        if model_id == "roformer_vocals":
+            return {"Instrumental": str(Path(output_dir) / "inst.wav")}
+        return {}
+
+    monkeypatch.setattr(engine, "_separate_with_model", fake_separate)
+
+    calls = []
+    p = pipeline.load_preset("maksymalna")
+    engine.run_pipeline(tmp_path / "song.wav", p, [], output_dir=tmp_path,
+                        progress_cb=lambda done, total, model_id: calls.append((done, total, model_id)))
+    assert calls == [(0, 2, "roformer_vocals"), (1, 2, "htdemucs_6s")]

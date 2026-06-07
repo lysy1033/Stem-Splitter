@@ -46,13 +46,16 @@ def _separate_with_model(model_file: str, input_path: str, output_dir: str) -> d
 
 
 def run_pipeline(input_path, pipe: Pipeline, requested_stems: list[str],
-                 output_dir) -> dict[str, str]:
+                 output_dir, progress_cb=None) -> dict[str, str]:
     reg = registry.load_registry()
     output_dir = Path(output_dir)
     # mapa: nazwa_kanoniczna -> sciezka pliku
     produced: dict[str, str] = {"mix": str(input_path)}
 
-    for stage in pipe.stages:
+    total = len(pipe.stages)
+    for i, stage in enumerate(pipe.stages):
+        if progress_cb is not None:
+            progress_cb(i, total, stage.model_id)
         stage_input = produced.get(stage.input)
         if stage_input is None:
             raise ValueError(f"Etap wymaga wejscia '{stage.input}', ktorego brak")
