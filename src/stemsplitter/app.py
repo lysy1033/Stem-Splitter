@@ -102,6 +102,7 @@ def _localize(request: gr.Request):
         gr.update(label=t["split_vocals"]),
         gr.update(label=t["split_drums"]),
         gr.update(value=t["run"]),
+        gr.update(value=t["stop"]),
         gr.update(label=t["result"]),
     )
 
@@ -125,16 +126,24 @@ def build_ui() -> gr.Blocks:
         )
         split_vocals = gr.Checkbox(label=en["split_vocals"], value=False)
         split_drums = gr.Checkbox(label=en["split_drums"], value=False)
-        btn = gr.Button(en["run"], variant="primary")
+        with gr.Row():
+            btn = gr.Button(en["run"], variant="primary")
+            stop_btn = gr.Button(en["stop"], variant="stop")
         status = gr.Markdown("")  # trwala informacja o biezacym etapie
         out = gr.File(label=en["result"])
 
-        btn.click(separate,
-                  [file_in, url_in, stems, preset, split_vocals, split_drums, lang_state],
-                  [status, out])
+        run_event = btn.click(
+            separate,
+            [file_in, url_in, stems, preset, split_vocals, split_drums, lang_state],
+            [status, out])
+        # Stop: anuluje trwajacy event. Pipeline oddaje sterowanie MIEDZY etapami,
+        # wiec zatrzymanie zadziala po zakonczeniu biezacego kroku (pojedynczego
+        # wywolania modelu nie da sie przerwac w polowie).
+        stop_btn.click(lambda lang: TEXT.get(lang, TEXT["en"])["stopped"],
+                       [lang_state], [status], cancels=[run_event])
         demo.load(_localize, None,
                   [lang_state, header, file_in, url_in, stems, preset,
-                   split_vocals, split_drums, btn, out])
+                   split_vocals, split_drums, btn, stop_btn, out])
     return demo
 
 
