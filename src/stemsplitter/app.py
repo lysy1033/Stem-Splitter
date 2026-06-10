@@ -222,8 +222,12 @@ def main():
     build_ui().launch(inbrowser=True, allowed_paths=[out_dir],
                       theme=gr.themes.Base(primary_hue="amber", neutral_hue="zinc",
                                            radius_size=gr.themes.sizes.radius_none,
-                                           font=["system-ui", "-apple-system", "sans-serif"],
-                                           font_mono=["ui-monospace", "SF Mono", "Menlo", "Consolas", "monospace"]),
+                                           font=[gr.themes.LocalFont("system-ui"),
+                                                 gr.themes.LocalFont("-apple-system"), "sans-serif"],
+                                           font_mono=[gr.themes.LocalFont("ui-monospace"),
+                                                      gr.themes.LocalFont("SF Mono"),
+                                                      gr.themes.LocalFont("Menlo"),
+                                                      gr.themes.LocalFont("Consolas"), "monospace"]),
                       css=_CSS, js=_FORCE_DARK_JS)
 
 
