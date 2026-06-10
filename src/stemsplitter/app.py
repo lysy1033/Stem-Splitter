@@ -128,39 +128,97 @@ def _localize(request: gr.Request):
     )
 
 
-# Gradio wstrzykuje ten skrypt do strony doslownie, wiec musi sie sam wywolac (IIFE).
-_FORCE_DARK_JS = """
+# Gradio wstrzykuje ten skrypt doslownie, wiec musi sie sam wywolac (IIFE).
+# Dwie rzeczy: wymusza ciemny motyw i dogrywa fonty (offline: fallback systemowy).
+_BOOT_JS = """
 (() => {
   const url = new URL(window.location);
   if (url.searchParams.get('__theme') !== 'dark') {
     url.searchParams.set('__theme', 'dark');
     window.location.href = url.href;
+    return;
+  }
+  if (!document.getElementById('hud-fonts')) {
+    const l = document.createElement('link');
+    l.id = 'hud-fonts';
+    l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap';
+    document.head.appendChild(l);
   }
 })();
 """
 
 _CSS = """
-.gradio-container {max-width: 1140px !important; margin: 0 auto !important;}
+:root {--hud: #f59e0b; --hud-dim: rgba(245,158,11,.55); --ink: #e7e9ee; --mut: #8b919c; --line: #24272e;}
+body {background:
+  radial-gradient(900px 420px at 50% -10%, rgba(245,158,11,.07), transparent 60%),
+  repeating-linear-gradient(0deg, transparent 0 23px, rgba(255,255,255,.012) 23px 24px),
+  repeating-linear-gradient(90deg, transparent 0 23px, rgba(255,255,255,.012) 23px 24px),
+  #06070a !important;}
+.gradio-container {max-width: 1160px !important; margin: 0 auto !important; font-family: 'Chakra Petch', system-ui, sans-serif !important;}
 footer {display: none !important;}
-body {background: #060708 !important;}
-.block, .form {border: 1px solid #23262c !important; background: #0b0d10 !important; box-shadow: none !important;}
-h1 {text-transform: uppercase; letter-spacing: .3em !important; font-size: 1rem !important; font-weight: 600; color: #e5e7eb;}
-h1::after {content: " _"; color: #f59e0b; animation: blink 1.2s steps(1) infinite;}
+.block, .form {background: linear-gradient(180deg, #0d0f13, #0a0c10) !important; border: 1px solid var(--line) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,.025) inset, 0 8px 24px rgba(0,0,0,.35) !important;}
+/* masthead */
+.block:has(h1) {padding: 14px 18px !important; border-left: 3px solid var(--hud) !important;}
+.prose:has(> h1), .md:has(> h1) {display: flex !important; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;}
+h1 {font-family: 'Chakra Petch', system-ui, sans-serif !important; font-weight: 700 !important; font-size: 1.5rem !important;
+  letter-spacing: .34em !important; color: var(--ink) !important; margin: 2px 0 !important;}
+h1::after {content: "_"; color: var(--hud); animation: blink 1.1s steps(1) infinite; margin-left: 2px;}
 @keyframes blink {50% {opacity: 0;}}
-h1 + p {font-family: ui-monospace, Menlo, monospace; font-size: 11px !important;
-        text-transform: uppercase; letter-spacing: .1em; color: #6b7280 !important;}
-h1 + p strong {color: #f59e0b !important; font-weight: 600;}
-#console {font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: .85rem;
-          background: #050505 !important; color: #fbbf24 !important; border: 1px solid #2c2f36 !important;
-          box-shadow: inset 0 0 30px rgba(0,0,0,.7) !important; padding: 14px 16px; min-height: 170px;}
-#console p {margin: 0 0 6px 0;}
-#console strong {color: #fde68a;}
-button {text-transform: uppercase; letter-spacing: .08em; font-weight: 600;}
-button.primary {border: 1px solid rgba(245,158,11,.55) !important; box-shadow: 0 0 14px rgba(245,158,11,.18) !important;}
-button.stop {border: 1px solid #3f3f46 !important;}
-label > span, span[data-testid="block-info"] {text-transform: uppercase !important; letter-spacing: .12em !important;
-        font-size: 10.5px !important; font-family: ui-monospace, Menlo, monospace !important; color: #9ca3af !important;}
-input[type=checkbox], input[type=radio] {accent-color: #f59e0b;}
+h1 + p {font-family: 'IBM Plex Mono', ui-monospace, monospace !important; display: inline-block; font-size: 10px !important;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--mut) !important; border: 1px solid var(--line);
+  padding: 4px 10px; background: #08090c; margin: 0 !important;}
+h1 + p strong {color: var(--hud) !important; font-weight: 600 !important;}
+/* etykiety sekcji */
+label > span, span[data-testid="block-info"] {font-family: 'IBM Plex Mono', ui-monospace, monospace !important;
+  text-transform: uppercase !important; letter-spacing: .22em !important; font-size: 9.5px !important; color: #6e747e !important;}
+span[data-testid="block-info"]::before {content: "// "; color: var(--hud-dim);}
+/* strefa uploadu */
+.boundedheight {max-height: 150px !important; min-height: 130px !important; border: 1px dashed #2c3038 !important;
+  margin: 8px; background: rgba(255,255,255,.012) !important;}
+.boundedheight * {font-family: 'IBM Plex Mono', ui-monospace, monospace !important; font-size: 11.5px !important;
+  font-weight: 400 !important; letter-spacing: .12em; color: #79808b !important; text-transform: uppercase;}
+/* pola tekstowe */
+input[type=text], textarea {background: #08090c !important; border: 1px solid var(--line) !important;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace !important; font-size: 12.5px !important; color: var(--ink) !important;}
+input[type=text]:focus, textarea:focus {border-color: var(--hud-dim) !important; box-shadow: 0 0 0 1px var(--hud-dim) !important;}
+/* chipy wyboru (grupy radio i checkbox) */
+[data-testid="checkbox-group"] label, fieldset label {background: transparent !important; border: 1px solid #2a2e36 !important;
+  color: #969ca6 !important; font-family: 'IBM Plex Mono', ui-monospace, monospace !important; font-size: 11px !important;
+  letter-spacing: .1em; text-transform: uppercase; transition: all .15s ease;}
+[data-testid="checkbox-group"] label:hover, fieldset label:hover {border-color: #3a3f48 !important; color: #c3c8d0 !important;}
+[data-testid="checkbox-group"] label.selected, fieldset label.selected {border-color: var(--hud) !important;
+  color: #ffd789 !important; background: rgba(245,158,11,.09) !important; box-shadow: 0 0 10px rgba(245,158,11,.12);}
+/* pojedyncze checkboxy (opcje) */
+label.checkbox-container {font-family: 'IBM Plex Mono', ui-monospace, monospace !important; font-size: 11px !important;
+  letter-spacing: .1em; text-transform: uppercase; color: #969ca6 !important;}
+input[type=checkbox], input[type=radio] {accent-color: var(--hud);}
+/* konsola statusu */
+#console {font-family: 'IBM Plex Mono', ui-monospace, monospace !important; font-size: .82rem !important;
+  background: linear-gradient(180deg, #050607, #07080a) !important; color: #fcbf49 !important;
+  border: 1px solid #2b2f37 !important; box-shadow: inset 0 0 36px rgba(0,0,0,.75) !important;
+  padding: 38px 18px 16px !important; min-height: 330px !important; position: relative; overflow: hidden;}
+#console::before {content: "MONITOR"; position: absolute; top: 0; left: 0; right: 0; height: 24px;
+  font-size: 9px; letter-spacing: .3em; color: #6e747e; background: #0b0d11; border-bottom: 1px solid #23262c;
+  display: flex; align-items: center; padding-left: 30px;}
+#console::after {content: ""; position: absolute; top: 8px; left: 14px; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--hud); box-shadow: 0 0 8px var(--hud); animation: pulse 2.2s ease-in-out infinite;}
+@keyframes pulse {50% {opacity: .35;}}
+#console p {margin: 0 0 7px 0 !important; text-shadow: 0 0 6px rgba(252,191,73,.25);}
+#console strong {color: #ffe1a6 !important;}
+/* przyciski */
+button {font-family: 'Chakra Petch', system-ui, sans-serif !important; text-transform: uppercase;
+  letter-spacing: .14em; font-weight: 600 !important;}
+button.primary {background: linear-gradient(180deg, #f6a722, #d97706) !important; color: #160f02 !important;
+  border: 1px solid #b45309 !important; box-shadow: 0 0 18px rgba(245,158,11,.22), 0 1px 0 rgba(255,255,255,.25) inset !important;}
+button.primary:hover {filter: brightness(1.08); box-shadow: 0 0 26px rgba(245,158,11,.35) !important;}
+button.stop {background: #0c0e12 !important; color: #9aa0aa !important; border: 1px solid #33373f !important;}
+button.stop:hover {border-color: #b91c1c !important; color: #ef9a9a !important;}
+/* scrollbar */
+::-webkit-scrollbar {width: 10px; height: 10px;}
+::-webkit-scrollbar-thumb {background: #23262c; border: 2px solid #06070a;}
+::-webkit-scrollbar-track {background: transparent;}
 """
 
 
@@ -261,7 +319,7 @@ def main():
                                                       gr.themes.Font("SF Mono"),
                                                       gr.themes.Font("Menlo"),
                                                       gr.themes.Font("Consolas"), "monospace"]),
-                      css=_CSS, js=_FORCE_DARK_JS)
+                      css=_CSS, js=_BOOT_JS)
 
 
 if __name__ == "__main__":
