@@ -140,8 +140,7 @@ footer {display: none !important;}
 
 def build_ui() -> gr.Blocks:
     en = TEXT["en"]
-    theme = gr.themes.Soft(primary_hue="violet", neutral_hue="zinc")
-    with gr.Blocks(title="StemSplitter", theme=theme, js=_FORCE_DARK_JS, css=_CSS) as demo:
+    with gr.Blocks(title="StemSplitter") as demo:
         lang_state = gr.State("en")
         header = gr.Markdown(f"# {en['title']}")
 
@@ -207,7 +206,9 @@ def main():
     _ensure_ffmpeg()  # pobierz/ustaw ffmpeg juz przy starcie
     # allowed_paths: pozwol Gradio serwowac pliki wynikowe z ~/StemSplitter (poza cwd/temp)
     out_dir = str(paths.ensure_data_dirs().base)
-    build_ui().launch(inbrowser=True, allowed_paths=[out_dir])
+    build_ui().launch(inbrowser=True, allowed_paths=[out_dir],
+                      theme=gr.themes.Soft(primary_hue="violet", neutral_hue="zinc"),
+                      css=_CSS, js=_FORCE_DARK_JS)
 
 
 if __name__ == "__main__":
