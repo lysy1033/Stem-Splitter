@@ -140,13 +140,27 @@ _FORCE_DARK_JS = """
 """
 
 _CSS = """
-.gradio-container {max-width: 1100px !important; margin: 0 auto !important;}
+.gradio-container {max-width: 1140px !important; margin: 0 auto !important;}
 footer {display: none !important;}
-h1 {text-transform: uppercase; letter-spacing: .14em; font-size: 1.1rem !important; font-weight: 600;}
+body {background: #060708 !important;}
+.block, .form {border: 1px solid #23262c !important; background: #0b0d10 !important; box-shadow: none !important;}
+h1 {text-transform: uppercase; letter-spacing: .3em !important; font-size: 1rem !important; font-weight: 600; color: #e5e7eb;}
+h1::after {content: " _"; color: #f59e0b; animation: blink 1.2s steps(1) infinite;}
+@keyframes blink {50% {opacity: 0;}}
+h1 + p {font-family: ui-monospace, Menlo, monospace; font-size: 11px !important;
+        text-transform: uppercase; letter-spacing: .1em; color: #6b7280 !important;}
+h1 + p strong {color: #f59e0b !important; font-weight: 600;}
 #console {font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: .85rem;
-          border: 1px solid var(--border-color-primary); padding: 14px 16px; min-height: 140px;}
+          background: #050505 !important; color: #fbbf24 !important; border: 1px solid #2c2f36 !important;
+          box-shadow: inset 0 0 30px rgba(0,0,0,.7) !important; padding: 14px 16px; min-height: 170px;}
 #console p {margin: 0 0 6px 0;}
-button {text-transform: uppercase; letter-spacing: .05em;}
+#console strong {color: #fde68a;}
+button {text-transform: uppercase; letter-spacing: .08em; font-weight: 600;}
+button.primary {border: 1px solid rgba(245,158,11,.55) !important; box-shadow: 0 0 14px rgba(245,158,11,.18) !important;}
+button.stop {border: 1px solid #3f3f46 !important;}
+label > span, span[data-testid="block-info"] {text-transform: uppercase !important; letter-spacing: .12em !important;
+        font-size: 10.5px !important; font-family: ui-monospace, Menlo, monospace !important; color: #9ca3af !important;}
+input[type=checkbox], input[type=radio] {accent-color: #f59e0b;}
 """
 
 
