@@ -6,8 +6,10 @@ def is_url(text) -> bool:
     return t.startswith("http://") or t.startswith("https://")
 
 
-def download_audio(url: str, work_dir: Path) -> Path:
-    """Pobiera audio z linku (YouTube itd.) do work_dir jako WAV. Wymaga yt-dlp + ffmpeg."""
+def download_audio(url: str, work_dir: Path) -> tuple[Path, str]:
+    """Pobiera audio z linku (YouTube itd.) do work_dir jako WAV. Wymaga yt-dlp + ffmpeg.
+
+    Zwraca (sciezka_wav, tytul) — tytul sluzy do nazwania paczki wynikowej."""
     import yt_dlp
 
     work_dir = Path(work_dir)
@@ -20,4 +22,5 @@ def download_audio(url: str, work_dir: Path) -> Path:
     }
     with yt_dlp.YoutubeDL(opts) as ydl:
         info = ydl.extract_info(url, download=True)
-    return work_dir / f"yt_{info['id']}.wav"
+    title = (info.get("title") or info["id"]).strip()
+    return work_dir / f"yt_{info['id']}.wav", title
