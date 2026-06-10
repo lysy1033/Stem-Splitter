@@ -41,6 +41,8 @@ main() {
   echo "Gotowe! Uruchamiam StemSplitter... / Done! Starting StemSplitter..."
   cd "$APP_DIR"
   export PYTHONPATH=src
+  trap - EXIT
+  rm -rf "$TMP"  # exec zastepuje proces, trap EXIT by nie odpalil
   exec "$VENV/bin/python" -m stemsplitter.app
 }
 main "$@"

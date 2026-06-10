@@ -44,7 +44,7 @@ if errorlevel 8 goto :fail
 echo [3/3] Aktualizuje zaleznosci... / Updating dependencies...
 set "PATH=%USERPROFILE%\.local\bin;%PATH%"
 rem ta sama logika CPU/GPU co w install-windows.bat (torch CUDA przez uv)
-where nvidia-smi >/dev/null 2>nul
+where nvidia-smi >nul 2>nul
 if errorlevel 1 (
   set "TORCH_BACKEND="
   uv pip install --python "%VENV%" "audio-separator[cpu]"
@@ -65,6 +65,7 @@ pause
 exit /b
 
 :fail
+rmdir /s /q "%TMPDIR%" 2>nul
 echo.
 echo Aktualizacja nie powiodla sie. / Update failed.
 pause
