@@ -9,6 +9,7 @@ class Stage:
     input: str          # "mix" lub nazwa stemu kanonicznego
     model_id: str
     outputs: dict[str, str]   # nazwa_z_separatora -> nazwa_kanoniczna
+    shifts: int = 0     # demucs: ile razy kazdy pod-model przelatuje utwor (0 = raz)
 
 
 @dataclass(frozen=True)
@@ -27,7 +28,8 @@ def _load_yaml(path: Path | None) -> dict:
 
 
 def _stage_from_dict(d: dict) -> Stage:
-    return Stage(input=d["input"], model_id=d["model"], outputs=dict(d["outputs"]))
+    return Stage(input=d["input"], model_id=d["model"], outputs=dict(d["outputs"]),
+                 shifts=int(d.get("shifts", 0)))
 
 
 def _produced_stems(stages: list[Stage]) -> set[str]:

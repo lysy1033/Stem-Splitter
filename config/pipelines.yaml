@@ -1,27 +1,27 @@
 # Preset = uporzadkowana lista etapow.
 # Etap: input (mix LUB nazwa stemu z wczesniejszego etapu), model (id z models.yaml),
-#       outputs (mapa: nazwa_stemu_z_separatora -> nazwa_kanoniczna).
+#       outputs (mapa: nazwa_stemu_z_separatora -> nazwa_kanoniczna),
+#       shifts (tylko demucs: ile razy kazdy pod-model przelatuje utwor; 0 = raz).
+# Oba presety daja KOMPLET 6 sciezek — kazdy wybor uzytkownika jest do spelnienia.
 presets:
-  szybko:
-    label: "Szybko"
+  normalna:
+    label: "Jakosc normalna"
     stages:
       - input: mix
-        model: htdemucs
-        outputs: {Vocals: wokal, Drums: perkusja, Bass: bas, Other: inne}
-  najlepsza:
-    label: "Najlepsza jakosc"
+        model: htdemucs_6s
+        shifts: 2
+        outputs: {Vocals: wokal, Drums: perkusja, Bass: bas, Guitar: gitara, Piano: pianino, Other: inne}
+  ultra:
+    label: "Ultra"
     stages:
-      - input: mix
-        model: htdemucs_ft
-        outputs: {Vocals: wokal, Drums: perkusja, Bass: bas, Other: inne}
-  maksymalna:
-    label: "Maksymalna (kaskada)"
-    stages:
+      # 1: izolacja wokalu modelem o najwyzszej jakosci (1 przejscie, szybkie)
       - input: mix
         model: roformer_vocals
         outputs: {Vocals: wokal, Instrumental: instrumental}
+      # 2: instrumenty z czystego instrumentalu, 8 przejsc z usrednianiem
       - input: instrumental
         model: htdemucs_6s
+        shifts: 8
         outputs: {Bass: bas, Drums: perkusja, Guitar: gitara, Piano: pianino, Other: inne}
 
 # Rozszerzenia doklejane na koncu pipeline, gdy uzytkownik zaznaczy przelacznik.
