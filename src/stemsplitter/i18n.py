@@ -22,12 +22,15 @@ TEXT = {
         "err_no_stem": "Select at least one stem.",
         "dl": "▸ Downloading audio from the link...",
         "prep": "▸ Preparing file...",
-        "sep": "Loading models ({accel})... first run downloads them",
         "sep_stage": "▸ **Step {n}/{total}: {label}** — running on {accel} (first run downloads the model)",
         "sep_stage_multi": "▸ **Step {n}/{total}: {label}** — the model passes over the track "
                            "{passes} times; the progress bar restarts at each pass ({accel})",
         "pack": "▸ Packing results...",
         "done": "✓ Done — your package is ready to download.",
+        "upd_available": "▲ **New version {latest} is available** (you have {current}).",
+        "upd_button": "Update now",
+        "upd_running": "▸ Updating — an update window just opened. The app will restart "
+                       "by itself; refresh this page in a minute or two.",
         "idle": "▸ Idle — waiting for a job.",
         "yt_full": "Also add the full track as MP3 to the package (YouTube links)",
         "missing_stems": "! Could not produce: {stems}.",
@@ -60,12 +63,15 @@ TEXT = {
         "err_no_stem": "Zaznacz przynajmniej jeden stem.",
         "dl": "▸ Pobieram audio z linku...",
         "prep": "▸ Przygotowuję plik...",
-        "sep": "Ładuję modele ({accel})... pierwszy raz są pobierane",
         "sep_stage": "▸ **Krok {n}/{total}: {label}** — na {accel} (pierwszy raz pobiera model)",
         "sep_stage_multi": "▸ **Krok {n}/{total}: {label}** — model przejdzie utwór {passes} razy; "
                            "pasek postępu startuje od nowa przy każdym przejściu ({accel})",
         "pack": "▸ Pakuję wyniki...",
         "done": "✓ Gotowe — paczka gotowa do pobrania.",
+        "upd_available": "▲ **Dostępna nowa wersja {latest}** (masz {current}).",
+        "upd_button": "Aktualizuj",
+        "upd_running": "▸ Aktualizuję — właśnie otworzyło się okno aktualizacji. Aplikacja "
+                       "uruchomi się ponownie sama; odśwież tę stronę za minutę–dwie.",
         "idle": "▸ Czekam na zadanie.",
         "yt_full": "Dodaj też cały utwór jako MP3 do paczki (linki YouTube)",
         "missing_stems": "! Nie udało się wyprodukować: {stems}.",

@@ -38,3 +38,16 @@ def test_new_ui_texts_present():
         t = i18n.TEXT[lang]
         assert t["yt_full"]
         assert "{stems}" in t["missing_stems"]
+
+
+def test_update_texts_have_placeholders():
+    for lang in ("en", "pl"):
+        t = i18n.TEXT[lang]
+        assert "{latest}" in t["upd_available"] and "{current}" in t["upd_available"]
+        assert t["upd_button"]
+        assert t["upd_running"]
+
+
+def test_no_dead_sep_key():
+    for lang in ("en", "pl"):
+        assert "sep" not in i18n.TEXT[lang]
