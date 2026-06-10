@@ -190,8 +190,16 @@ input[type=text]:focus, textarea:focus {border-color: var(--hud-dim) !important;
 [data-testid="checkbox-group"] label:hover, fieldset label:hover {border-color: #3a3f48 !important; color: #c3c8d0 !important;}
 [data-testid="checkbox-group"] label.selected, fieldset label.selected {border-color: var(--hud) !important;
   color: #ffd789 !important; background: rgba(245,158,11,.09) !important; box-shadow: 0 0 10px rgba(245,158,11,.12);}
+/* sciezki: rowna siatka 3xN, dioda LED zamiast kwadratu checkboxa */
+[data-testid="checkbox-group"] {display: grid !important; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px !important;}
+[data-testid="checkbox-group"] label {margin: 0 !important; padding: 12px 14px !important; font-size: 12.5px !important;
+  letter-spacing: .14em; display: flex !important; align-items: center; gap: 11px; justify-content: flex-start;}
+[data-testid="checkbox-group"] label input[type=checkbox] {appearance: none; -webkit-appearance: none;
+  width: 9px; height: 9px; min-width: 9px; border-radius: 50%; background: #2e333b; border: none; margin: 0;
+  transition: all .15s ease;}
+[data-testid="checkbox-group"] label input[type=checkbox]:checked {background: var(--hud); box-shadow: 0 0 9px var(--hud);}
 /* pojedyncze checkboxy (opcje) */
-label.checkbox-container {font-family: 'IBM Plex Mono', ui-monospace, monospace !important; font-size: 11px !important;
+label.checkbox-container {font-family: 'IBM Plex Mono', ui-monospace, monospace !important; font-size: 11.5px !important;
   letter-spacing: .1em; text-transform: uppercase; color: #969ca6 !important;}
 input[type=checkbox], input[type=radio] {accent-color: var(--hud);}
 /* konsola statusu */
