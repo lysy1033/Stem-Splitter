@@ -10,6 +10,7 @@ class ModelSpec:
     file: str
     architecture: str
     role: str
+    passes: int = 1   # ile pod-modeli liczy jeden przebieg (pakiet htdemucs_ft = 4)
 
 
 def _default_path() -> Path:
@@ -29,5 +30,6 @@ def load_registry(path: Path | None = None) -> dict[str, ModelSpec]:
             file=spec["file"],
             architecture=spec["architecture"],
             role=spec.get("role", ""),
+            passes=int(spec.get("passes", 1)),
         )
     return result

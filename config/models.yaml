@@ -9,6 +9,7 @@ models:
     file: htdemucs_ft.yaml
     architecture: demucs
     role: "4 stemy fine-tuned (lepsza jakosc)"
+    passes: 4   # pakiet 4 pod-modeli — status pokazuje realna liczbe przejsc
   htdemucs_6s:
     file: htdemucs_6s.yaml
     architecture: demucs
