@@ -22,5 +22,5 @@ def download_audio(url: str, work_dir: Path) -> tuple[Path, str]:
     }
     with yt_dlp.YoutubeDL(opts) as ydl:
         info = ydl.extract_info(url, download=True)
-    title = (info.get("title") or info["id"]).strip()
+    title = (info.get("title") or "").strip() or info["id"]
     return work_dir / f"yt_{info['id']}.wav", title

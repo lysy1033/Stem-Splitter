@@ -60,3 +60,24 @@ def test_download_audio_falls_back_to_id_when_no_title(monkeypatch, tmp_path):
     fake.YoutubeDL = FakeYDL
     monkeypatch.setitem(sys.modules, "yt_dlp", fake)
     assert youtube.download_audio("u", tmp_path)[1] == "X"
+
+
+def test_download_audio_falls_back_to_id_when_title_blank(monkeypatch, tmp_path):
+    class FakeYDL:
+        def __init__(self, opts):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def extract_info(self, url, download):
+            (tmp_path / "yt_X.wav").write_bytes(b"wav")
+            return {"id": "X", "title": "   "}
+
+    fake = types.ModuleType("yt_dlp")
+    fake.YoutubeDL = FakeYDL
+    monkeypatch.setitem(sys.modules, "yt_dlp", fake)
+    assert youtube.download_audio("u", tmp_path)[1] == "X"
