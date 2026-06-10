@@ -69,4 +69,6 @@ def start_update() -> None:
     else:
         subprocess.Popen(["open", str(script)])
     # 1.5 s: Gradio musi zdazyc oddac odpowiedz do przegladarki przed zamknieciem
-    threading.Timer(1.5, lambda: os._exit(0)).start()
+    timer = threading.Timer(1.5, lambda: os._exit(0))
+    timer.daemon = True  # nie blokuje wyjscia procesu (np. w testach)
+    timer.start()
