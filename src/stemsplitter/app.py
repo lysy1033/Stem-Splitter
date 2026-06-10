@@ -122,14 +122,15 @@ def _localize(request: gr.Request):
     )
 
 
+# Gradio wstrzykuje ten skrypt do strony doslownie, wiec musi sie sam wywolac (IIFE).
 _FORCE_DARK_JS = """
-() => {
+(() => {
   const url = new URL(window.location);
   if (url.searchParams.get('__theme') !== 'dark') {
     url.searchParams.set('__theme', 'dark');
     window.location.href = url.href;
   }
-}
+})();
 """
 
 _CSS = """
