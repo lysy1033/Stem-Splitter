@@ -55,7 +55,7 @@ def separate(file_path, url, chosen_stems, preset_key, yt_full, split_vocals, sp
     dirs = paths.ensure_data_dirs()
     extras: list[Path] = []
     if url and url.strip():
-        yield t["dl"], None
+        yield t["dl"], gr.update(visible=False)
         source, title = youtube.download_audio(url.strip(), dirs.work)
         if yt_full:
             extras.append(media.to_mp3(source, dirs.work, title))
@@ -65,7 +65,7 @@ def separate(file_path, url, chosen_stems, preset_key, yt_full, split_vocals, sp
     else:
         raise gr.Error(t["err_no_input"])
 
-    yield t["prep"], None
+    yield t["prep"], gr.update(visible=False)
     prepared = media.prepare_input(source, work_dir=dirs.work)
 
     extensions = []
@@ -87,18 +87,18 @@ def separate(file_path, url, chosen_stems, preset_key, yt_full, split_vocals, sp
             label = t["stage_labels"].get(model_id, model_id)
             key = "sep_stage_multi" if passes > 1 else "sep_stage"
             yield t[key].format(n=idx + 1, total=total, label=label,
-                                accel=accel, passes=passes), None
+                                accel=accel, passes=passes), gr.update(visible=False)
         else:
             result = event[1]
 
-    yield t["pack"], None
+    yield t["pack"], gr.update(visible=False)
     zip_path = _zip_results(result, dirs.output, title, extras)
     done = t["done"]
     missing = [s for s in requested if s not in result]
     if missing:
         labels = ", ".join(t["stem_labels"].get(s, s) for s in missing)
         done = f"{done} {t['missing_stems'].format(stems=labels)}"
-    yield done, zip_path
+    yield done, gr.update(value=zip_path, visible=True)
 
 
 def _localize(request: gr.Request):
@@ -169,7 +169,8 @@ def build_ui() -> gr.Blocks:
             btn = gr.Button(en["run"], variant="primary")
             stop_btn = gr.Button(en["stop"], variant="stop")
         status = gr.Markdown("")  # trwala informacja o biezacym etapie
-        out = gr.File(label=en["result"])
+        # wynik ukryty do czasu gotowej paczki (pusty wyglada jak drugi upload)
+        out = gr.File(label=en["result"], visible=False)
 
         # Na czas pracy blokujemy wszystko poza Stop; odblokowanie po zakonczeniu
         # (sukces: .then; blad gr.Error: .failure — w Gradio 6 .then nie odpala sie po bledzie)
