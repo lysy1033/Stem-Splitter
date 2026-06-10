@@ -4,7 +4,7 @@ from pathlib import Path
 
 import gradio as gr
 
-from . import engine, media, paths, pipeline, youtube
+from . import engine, media, paths, pipeline, update, youtube
 from .i18n import PRESET_KEYS, STEM_KEYS, TEXT, pick_lang
 
 
@@ -106,6 +106,8 @@ def _localize(request: gr.Request):
     lang = pick_lang(request)
     t = TEXT[lang]
     accel = engine.detect_acceleration()
+    upd = update.update_available()
+    upd_text = t["upd_available"].format(current=upd[0], latest=upd[1]) if upd else ""
     return (
         lang,
         gr.update(value=f"# {t['title']}\n{t['accel']}: **{accel}**"),
@@ -120,6 +122,9 @@ def _localize(request: gr.Request):
         gr.update(value=t["stop"]),
         gr.update(label=t["result"]),
         gr.update(value=t["idle"]),
+        gr.update(visible=upd is not None),
+        gr.update(value=upd_text),
+        gr.update(value=t["upd_button"]),
     )
 
 
@@ -145,11 +150,22 @@ button {text-transform: uppercase; letter-spacing: .05em;}
 """
 
 
+def _do_update(lang):
+    t = TEXT.get(lang, TEXT["en"])
+    update.start_update()
+    return t["upd_running"]
+
+
 def build_ui() -> gr.Blocks:
     en = TEXT["en"]
     with gr.Blocks(title="StemSplitter") as demo:
         lang_state = gr.State("en")
         header = gr.Markdown(f"# {en['title']}")
+
+        # baner nowej wersji (widoczny tylko, gdy update_available cos zwroci)
+        with gr.Row(visible=False) as upd_row:
+            upd_info = gr.Markdown("")
+            upd_btn = gr.Button(en["upd_button"], variant="primary")
 
         with gr.Row():
             with gr.Column(scale=5):
@@ -208,9 +224,12 @@ def build_ui() -> gr.Blocks:
         # po zakonczeniu biezacego kroku (wywolania modelu nie da sie przerwac w polowie).
         stop_btn.click(_on_stop, [lang_state], [status] + lockable, cancels=[sep_event])
 
+        upd_btn.click(_do_update, [lang_state], [status])
+
         demo.load(_localize, None,
                   [lang_state, header, file_in, url_in, preset, stems, yt_full,
-                   split_vocals, split_drums, btn, stop_btn, out, status])
+                   split_vocals, split_drums, btn, stop_btn, out, status,
+                   upd_row, upd_info, upd_btn])
     return demo
 
 
