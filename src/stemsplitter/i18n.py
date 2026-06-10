@@ -1,7 +1,7 @@
 """Dwujezyczne teksty UI (EN/PL) + dobor jezyka wg preferencji przegladarki."""
 
 STEM_KEYS = ["wokal", "perkusja", "bas", "gitara", "pianino", "inne"]
-PRESET_KEYS = ["szybko", "najlepsza", "maksymalna"]
+PRESET_KEYS = ["normalna", "ultra"]
 
 TEXT = {
     "en": {
@@ -24,11 +24,13 @@ TEXT = {
         "prep": "Preparing file...",
         "sep": "Loading models ({accel})... first run downloads them",
         "sep_stage": "**Step {n}/{total}: {label}** — running on {accel} (first run downloads the model)",
+        "sep_stage_multi": "**Step {n}/{total}: {label}** — the model passes over the track "
+                           "{passes} times; the progress bar restarts at each pass ({accel})",
         "pack": "Packing results...",
         "done": "✅ Done — your download is ready below.",
+        "yt_full": "Also add the full track as MP3 to the package (YouTube links)",
+        "missing_stems": "⚠️ Could not produce: {stems}.",
         "stage_labels": {
-            "htdemucs": "splitting instruments",
-            "htdemucs_ft": "splitting instruments (high quality)",
             "htdemucs_6s": "splitting instruments (incl. guitar/piano)",
             "roformer_vocals": "isolating vocals",
             "roformer_karaoke": "vocals → lead + backing",
@@ -36,8 +38,8 @@ TEXT = {
         },
         "stem_labels": {"wokal": "🎤 Vocals", "perkusja": "🥁 Drums", "bas": "🎸 Bass",
                         "gitara": "🎸 Guitar", "pianino": "🎹 Piano", "inne": "🎛️ Other"},
-        "presets": {"szybko": "Fast", "najlepsza": "Best quality",
-                    "maksymalna": "Maximum (cascade)"},
+        "presets": {"normalna": "Normal quality (6 stems, 2 passes)",
+                    "ultra": "Ultra (best vocals, 8 passes)"},
     },
     "pl": {
         "title": "🎵 StemSplitter",
@@ -59,11 +61,13 @@ TEXT = {
         "prep": "Przygotowuję plik...",
         "sep": "Ładuję modele ({accel})... pierwszy raz są pobierane",
         "sep_stage": "**Krok {n}/{total}: {label}** — na {accel} (pierwszy raz pobiera model)",
+        "sep_stage_multi": "**Krok {n}/{total}: {label}** — model przejdzie utwór {passes} razy; "
+                           "pasek postępu startuje od nowa przy każdym przejściu ({accel})",
         "pack": "Pakuję wyniki...",
         "done": "✅ Gotowe — plik do pobrania jest poniżej.",
+        "yt_full": "Dodaj też cały utwór jako MP3 do paczki (linki YouTube)",
+        "missing_stems": "⚠️ Nie udało się wyprodukować: {stems}.",
         "stage_labels": {
-            "htdemucs": "rozdzielanie instrumentów",
-            "htdemucs_ft": "rozdzielanie instrumentów (wysoka jakość)",
             "htdemucs_6s": "rozdzielanie instrumentów (z gitarą/pianinem)",
             "roformer_vocals": "izolacja wokalu",
             "roformer_karaoke": "wokal → lead + chórki",
@@ -71,8 +75,8 @@ TEXT = {
         },
         "stem_labels": {"wokal": "🎤 wokal", "perkusja": "🥁 perkusja", "bas": "🎸 bas",
                         "gitara": "🎸 gitara", "pianino": "🎹 pianino", "inne": "🎛️ reszta"},
-        "presets": {"szybko": "Szybko", "najlepsza": "Najlepsza jakość",
-                    "maksymalna": "Maksymalna (kaskada)"},
+        "presets": {"normalna": "Jakość normalna (6 ścieżek, 2 przejścia)",
+                    "ultra": "Ultra (najlepszy wokal, 8 przejść)"},
     },
 }
 
