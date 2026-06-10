@@ -101,6 +101,15 @@ harder for any AI — results are good, but not studio-perfect.
 Models and the quality presets are plain text files; change them without touching code:
 `config/models.yaml` (which model) and `config/pipelines.yaml` (the steps each preset runs).
 
+### Updating
+
+When a new version is released, the app shows a banner with an **Update now** button — one click
+downloads the new version, replaces the files and restarts the app. Your models and results in the
+StemSplitter folder are untouched.
+
+You can also update manually by double-clicking: `installers/update-mac.command` (macOS) /
+`installers/update-windows.bat` (Windows).
+
 ---
 
 ## Polski
@@ -196,3 +205,12 @@ trudniejsze dla każdego AI — wyniki są dobre, ale nie idealne studyjnie.
 
 Modele i presety jakości to zwykłe pliki tekstowe; zmieniasz je bez ruszania kodu:
 `config/models.yaml` (jaki model) i `config/pipelines.yaml` (kroki każdego presetu).
+
+### Aktualizacja
+
+Gdy pojawi się nowa wersja, aplikacja pokaże u góry pasek z przyciskiem **Aktualizuj** — jedno
+kliknięcie pobiera nową wersję, podmienia pliki i restartuje aplikację. Modele i wyniki w folderze
+StemSplitter zostają nietknięte.
+
+Można też zaktualizować ręcznie, klikając dwukrotnie: `installers/update-mac.command` (macOS) /
+`installers/update-windows.bat` (Windows).
