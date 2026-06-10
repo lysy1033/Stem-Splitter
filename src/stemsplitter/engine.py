@@ -54,12 +54,14 @@ def detect_acceleration() -> str:
     return "CPU"
 
 
-def _load_separator(model_file: str, output_dir: str):
+def _load_separator(model_file: str, output_dir: str, shifts: int = 0):
     """Tworzy Separator i wczytuje model (pobiera go, jesli go nie ma)."""
     from audio_separator.separator import Separator
 
     separator = Separator(output_dir=str(output_dir),
-                          model_file_dir=str(paths.ensure_data_dirs().models))
+                          model_file_dir=str(paths.ensure_data_dirs().models),
+                          demucs_params={"segment_size": "Default", "shifts": shifts,
+                                         "overlap": 0.25, "segments_enabled": True})
     separator.load_model(model_filename=model_file)
     return separator
 
@@ -79,7 +81,8 @@ def _purge_model_files(model_file: str) -> list[str]:
     return removed
 
 
-def _separate_with_model(model_file: str, input_path: str, output_dir: str) -> dict[str, str]:
+def _separate_with_model(model_file: str, input_path: str, output_dir: str,
+                         shifts: int = 0) -> dict[str, str]:
     """Realne wywolanie audio-separator. Zwraca {nazwa_stemu_z_separatora: sciezka}.
 
     Przerwane pobieranie zostawia czesciowy plik modelu, a audio-separator
@@ -88,14 +91,14 @@ def _separate_with_model(model_file: str, input_path: str, output_dir: str) -> d
     sys.exit(1) (-> SystemExit); inne architektury moga rzucic RuntimeError.
     Wtedy kasujemy plik(i) modelu i ponawiamy raz, wymuszajac czyste pobranie."""
     try:
-        separator = _load_separator(model_file, output_dir)
+        separator = _load_separator(model_file, output_dir, shifts)
     except (SystemExit, RuntimeError):
         removed = _purge_model_files(model_file)
         if not removed:
             raise  # nie bylo czego skasowac -> to nie problem z plikiem modelu
         print(f"StemSplitter: uszkodzony model ({model_file}) usuniety, "
               f"pobieram od nowa / corrupt model removed, re-downloading...")
-        separator = _load_separator(model_file, output_dir)  # czyste pobranie; blad propaguje
+        separator = _load_separator(model_file, output_dir, shifts)  # czyste pobranie; blad propaguje
     files = separator.separate(str(input_path))
     out: dict[str, str] = {}
     for f in files:
@@ -118,12 +121,14 @@ def run_pipeline_steps(input_path, pipe: Pipeline, requested_stems: list[str], o
 
     total = len(pipe.stages)
     for i, stage in enumerate(pipe.stages):
-        yield ("stage", i, total, stage.model_id)
+        spec = reg[stage.model_id]
+        # demucs: kazdy pod-model leci max(shifts,1) razy; inne architektury ignoruja shifts
+        runs = spec.passes * max(stage.shifts, 1) if spec.architecture == "demucs" else spec.passes
+        yield ("stage", i, total, stage.model_id, runs)
         stage_input = produced.get(stage.input)
         if stage_input is None:
             raise ValueError(f"Etap wymaga wejscia '{stage.input}', ktorego brak")
-        model_file = reg[stage.model_id].file
-        raw = _separate_with_model(model_file, stage_input, str(output_dir))
+        raw = _separate_with_model(spec.file, stage_input, str(output_dir), shifts=stage.shifts)
         for sep_name, canonical in stage.outputs.items():
             if sep_name in raw:
                 produced[canonical] = raw[sep_name]
