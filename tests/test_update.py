@@ -51,3 +51,26 @@ def test_updater_script_matches_platform(monkeypatch):
     assert update._updater_script().name == "update-mac.command"
     monkeypatch.setattr(update.sys, "platform", "win32")
     assert update._updater_script().name == "update-windows.bat"
+
+
+def test_latest_version_busts_cdn_cache(monkeypatch):
+    import urllib.request
+    seen = {}
+
+    class FakeResp:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def read(self):
+            return b"9.9"
+
+    def fake_urlopen(url, timeout):
+        seen["url"] = url
+        return FakeResp()
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+    assert update.latest_version() == "9.9"
+    assert "?ts=" in seen["url"]

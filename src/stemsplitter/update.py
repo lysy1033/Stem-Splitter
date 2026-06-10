@@ -8,6 +8,7 @@ import os
 import subprocess
 import sys
 import threading
+import time
 import urllib.request
 from pathlib import Path
 
@@ -27,7 +28,9 @@ def current_version() -> str:
 
 def latest_version(timeout: float = 3.0) -> str | None:
     try:
-        with urllib.request.urlopen(_RAW_VERSION_URL, timeout=timeout) as resp:
+        # parametr ts omija cache CDN (raw.githubusercontent trzyma plik do ~5 min)
+        url = f"{_RAW_VERSION_URL}?ts={int(time.time())}"
+        with urllib.request.urlopen(url, timeout=timeout) as resp:
             return resp.read().decode("utf-8").strip() or None
     except Exception:
         return None

@@ -110,7 +110,7 @@ def _localize(request: gr.Request):
     upd_text = t["upd_available"].format(current=upd[0], latest=upd[1]) if upd else ""
     return (
         lang,
-        gr.update(value=f"# {t['title']}\n{t['accel']}: **{accel}**"),
+        gr.update(value=f"# {t['title']}\n{t['accel']}: **{accel}** · v **{update.current_version()}**"),
         gr.update(label=t["file"]),
         gr.update(label=t["url"], placeholder=t["url_ph"]),
         gr.update(choices=[(t["presets"][k], k) for k in PRESET_KEYS], label=t["quality"]),
