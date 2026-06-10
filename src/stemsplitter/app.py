@@ -119,6 +119,7 @@ def _localize(request: gr.Request):
         gr.update(value=t["run"]),
         gr.update(value=t["stop"]),
         gr.update(label=t["result"]),
+        gr.update(value=t["idle"]),
     )
 
 
@@ -134,8 +135,13 @@ _FORCE_DARK_JS = """
 """
 
 _CSS = """
-.gradio-container {max-width: 880px !important; margin: 0 auto !important;}
+.gradio-container {max-width: 1100px !important; margin: 0 auto !important;}
 footer {display: none !important;}
+h1 {text-transform: uppercase; letter-spacing: .14em; font-size: 1.1rem !important; font-weight: 600;}
+#console {font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: .85rem;
+          border: 1px solid var(--border-color-primary); padding: 14px 16px; min-height: 140px;}
+#console p {margin: 0 0 6px 0;}
+button {text-transform: uppercase; letter-spacing: .05em;}
 """
 
 
@@ -145,32 +151,36 @@ def build_ui() -> gr.Blocks:
         lang_state = gr.State("en")
         header = gr.Markdown(f"# {en['title']}")
 
-        # 1. utwor
-        file_in = gr.File(label=en["file"], type="filepath")
-        url_in = gr.Textbox(label=en["url"], placeholder=en["url_ph"])
-        # 2. preset
-        preset = gr.Radio(
-            choices=[(en["presets"][k], k) for k in PRESET_KEYS],
-            value="normalna",
-            label=en["quality"],
-        )
-        # 3. sciezki
-        stems = gr.CheckboxGroup(
-            choices=[(en["stem_labels"][k], k) for k in STEM_KEYS],
-            value=["wokal", "perkusja", "bas", "inne"],
-            label=en["stems"],
-        )
-        # 4. opcje dodatkowe
-        yt_full = gr.Checkbox(label=en["yt_full"], value=False)
-        split_vocals = gr.Checkbox(label=en["split_vocals"], value=False)
-        split_drums = gr.Checkbox(label=en["split_drums"], value=False)
+        with gr.Row():
+            with gr.Column(scale=5):
+                # zrodlo
+                file_in = gr.File(label=en["file"], type="filepath")
+                url_in = gr.Textbox(label=en["url"], placeholder=en["url_ph"])
+                # preset
+                preset = gr.Radio(
+                    choices=[(en["presets"][k], k) for k in PRESET_KEYS],
+                    value="normalna",
+                    label=en["quality"],
+                )
+                # sciezki
+                stems = gr.CheckboxGroup(
+                    choices=[(en["stem_labels"][k], k) for k in STEM_KEYS],
+                    value=["wokal", "perkusja", "bas", "inne"],
+                    label=en["stems"],
+                )
+                # opcje dodatkowe
+                yt_full = gr.Checkbox(label=en["yt_full"], value=False)
+                split_vocals = gr.Checkbox(label=en["split_vocals"], value=False)
+                split_drums = gr.Checkbox(label=en["split_drums"], value=False)
+            with gr.Column(scale=4):
+                # konsola statusu (trwala informacja o biezacym etapie)
+                status = gr.Markdown("", elem_id="console")
+                # wynik ukryty do czasu gotowej paczki (pusty wyglada jak drugi upload)
+                out = gr.File(label=en["result"], visible=False)
 
         with gr.Row():
             btn = gr.Button(en["run"], variant="primary")
             stop_btn = gr.Button(en["stop"], variant="stop")
-        status = gr.Markdown("")  # trwala informacja o biezacym etapie
-        # wynik ukryty do czasu gotowej paczki (pusty wyglada jak drugi upload)
-        out = gr.File(label=en["result"], visible=False)
 
         # Na czas pracy blokujemy wszystko poza Stop; odblokowanie po zakonczeniu
         # (sukces: .then; blad gr.Error: .failure — w Gradio 6 .then nie odpala sie po bledzie)
@@ -200,7 +210,7 @@ def build_ui() -> gr.Blocks:
 
         demo.load(_localize, None,
                   [lang_state, header, file_in, url_in, preset, stems, yt_full,
-                   split_vocals, split_drums, btn, stop_btn, out])
+                   split_vocals, split_drums, btn, stop_btn, out, status])
     return demo
 
 
@@ -210,7 +220,10 @@ def main():
     # allowed_paths: pozwol Gradio serwowac pliki wynikowe z ~/StemSplitter (poza cwd/temp)
     out_dir = str(paths.ensure_data_dirs().base)
     build_ui().launch(inbrowser=True, allowed_paths=[out_dir],
-                      theme=gr.themes.Soft(primary_hue="violet", neutral_hue="zinc"),
+                      theme=gr.themes.Base(primary_hue="amber", neutral_hue="zinc",
+                                           radius_size=gr.themes.sizes.radius_none,
+                                           font=["system-ui", "-apple-system", "sans-serif"],
+                                           font_mono=["ui-monospace", "SF Mono", "Menlo", "Consolas", "monospace"]),
                       css=_CSS, js=_FORCE_DARK_JS)
 
 
