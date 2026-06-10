@@ -10,3 +10,8 @@ __pycache__/
 
 # Local dev/process artifacts (kept out of the repo)
 docs/
+
+# OS / narzedzia lokalne
+.DS_Store
+.playwright-mcp/
+uv.lock
