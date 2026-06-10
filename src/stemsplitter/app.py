@@ -171,8 +171,8 @@ def build_ui() -> gr.Blocks:
         out = gr.File(label=en["result"])
 
         # Na czas pracy blokujemy wszystko poza Stop; odblokowanie po zakonczeniu
-        # (takze po bledzie — .then odpala sie zawsze) lub w handlerze Stop
-        # (anulowany lancuch nie wykona juz swojego .then).
+        # (sukces: .then; blad gr.Error: .failure — w Gradio 6 .then nie odpala sie po bledzie)
+        # lub w handlerze Stop (anulowany lancuch nie wykona juz swojego .then).
         lockable = [file_in, url_in, preset, stems, yt_full, split_vocals, split_drums, btn]
 
         def _set_interactive(value):
@@ -186,6 +186,7 @@ def build_ui() -> gr.Blocks:
             [status, out],
         )
         sep_event.then(_set_interactive(True), None, lockable)
+        sep_event.failure(_set_interactive(True), None, lockable)
 
         def _on_stop(lang):
             t = TEXT.get(lang, TEXT["en"])
