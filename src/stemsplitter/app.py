@@ -32,15 +32,18 @@ def _ensure_ffmpeg():
         pass  # gdy systemowy ffmpeg jest na PATH, tez zadziala
 
 
-def _zip_results(result: dict[str, str], output_dir: Path) -> str:
-    zip_path = output_dir / "stems.zip"
+def _zip_results(result: dict[str, str], output_dir: Path, title: str,
+                 extras: list[Path] | None = None) -> str:
+    zip_path = output_dir / f"{media.safe_filename(title)}.zip"
     with zipfile.ZipFile(zip_path, "w") as z:
         for stem, fpath in result.items():
             z.write(fpath, arcname=f"{stem}{Path(fpath).suffix}")
+        for extra in extras or []:
+            z.write(extra, arcname=Path(extra).name)
     return str(zip_path)
 
 
-def separate(file_path, url, chosen_stems, preset_key, split_vocals, split_drums, lang,
+def separate(file_path, url, chosen_stems, preset_key, yt_full, split_vocals, split_drums, lang,
              progress=gr.Progress(track_tqdm=True)):
     # Generator: na biezaco aktualizuje TRWALA linie statusu (ktory etap) + plik na koncu.
     # track_tqdm=True: pasek postepu podaza za wewnetrznym tqdm modelu (ruch w trakcie etapu).
@@ -50,11 +53,15 @@ def separate(file_path, url, chosen_stems, preset_key, split_vocals, split_drums
 
     _ensure_ffmpeg()
     dirs = paths.ensure_data_dirs()
+    extras: list[Path] = []
     if url and url.strip():
         yield t["dl"], None
-        source = youtube.download_audio(url.strip(), dirs.work)
+        source, title = youtube.download_audio(url.strip(), dirs.work)
+        if yt_full:
+            extras.append(media.to_mp3(source, dirs.work, title))
     elif file_path:
         source = Path(file_path)
+        title = source.stem
     else:
         raise gr.Error(t["err_no_input"])
 
@@ -76,15 +83,22 @@ def separate(file_path, url, chosen_stems, preset_key, split_vocals, split_drums
     result: dict[str, str] = {}
     for event in engine.run_pipeline_steps(prepared, pipe, requested, output_dir=dirs.output):
         if event[0] == "stage":
-            _, idx, total, model_id = event
+            _, idx, total, model_id, passes = event
             label = t["stage_labels"].get(model_id, model_id)
-            yield t["sep_stage"].format(n=idx + 1, total=total, label=label, accel=accel), None
+            key = "sep_stage_multi" if passes > 1 else "sep_stage"
+            yield t[key].format(n=idx + 1, total=total, label=label,
+                                accel=accel, passes=passes), None
         else:
             result = event[1]
 
     yield t["pack"], None
-    zip_path = _zip_results(result, dirs.output)
-    yield t["done"], zip_path
+    zip_path = _zip_results(result, dirs.output, title, extras)
+    done = t["done"]
+    missing = [s for s in requested if s not in result]
+    if missing:
+        labels = ", ".join(t["stem_labels"].get(s, s) for s in missing)
+        done = f"{done} {t['missing_stems'].format(stems=labels)}"
+    yield done, zip_path
 
 
 def _localize(request: gr.Request):
@@ -97,8 +111,9 @@ def _localize(request: gr.Request):
         gr.update(value=f"# {t['title']}\n{t['accel']}: **{accel}**"),
         gr.update(label=t["file"]),
         gr.update(label=t["url"], placeholder=t["url_ph"]),
-        gr.update(choices=[(t["stem_labels"][k], k) for k in STEM_KEYS], label=t["stems"]),
         gr.update(choices=[(t["presets"][k], k) for k in PRESET_KEYS], label=t["quality"]),
+        gr.update(choices=[(t["stem_labels"][k], k) for k in STEM_KEYS], label=t["stems"]),
+        gr.update(label=t["yt_full"]),
         gr.update(label=t["split_vocals"]),
         gr.update(label=t["split_drums"]),
         gr.update(value=t["run"]),
@@ -107,42 +122,82 @@ def _localize(request: gr.Request):
     )
 
 
+_FORCE_DARK_JS = """
+() => {
+  const url = new URL(window.location);
+  if (url.searchParams.get('__theme') !== 'dark') {
+    url.searchParams.set('__theme', 'dark');
+    window.location.href = url.href;
+  }
+}
+"""
+
+_CSS = """
+.gradio-container {max-width: 880px !important; margin: 0 auto !important;}
+footer {display: none !important;}
+"""
+
+
 def build_ui() -> gr.Blocks:
     en = TEXT["en"]
-    with gr.Blocks(title="StemSplitter") as demo:
+    theme = gr.themes.Soft(primary_hue="violet", neutral_hue="zinc")
+    with gr.Blocks(title="StemSplitter", theme=theme, js=_FORCE_DARK_JS, css=_CSS) as demo:
         lang_state = gr.State("en")
         header = gr.Markdown(f"# {en['title']}")
+
+        # 1. utwor
         file_in = gr.File(label=en["file"], type="filepath")
         url_in = gr.Textbox(label=en["url"], placeholder=en["url_ph"])
+        # 2. preset
+        preset = gr.Radio(
+            choices=[(en["presets"][k], k) for k in PRESET_KEYS],
+            value="normalna",
+            label=en["quality"],
+        )
+        # 3. sciezki
         stems = gr.CheckboxGroup(
             choices=[(en["stem_labels"][k], k) for k in STEM_KEYS],
             value=["wokal", "perkusja", "bas", "inne"],
             label=en["stems"],
         )
-        preset = gr.Radio(
-            choices=[(en["presets"][k], k) for k in PRESET_KEYS],
-            value="najlepsza",
-            label=en["quality"],
-        )
+        # 4. opcje dodatkowe
+        yt_full = gr.Checkbox(label=en["yt_full"], value=False)
         split_vocals = gr.Checkbox(label=en["split_vocals"], value=False)
         split_drums = gr.Checkbox(label=en["split_drums"], value=False)
+
         with gr.Row():
             btn = gr.Button(en["run"], variant="primary")
             stop_btn = gr.Button(en["stop"], variant="stop")
         status = gr.Markdown("")  # trwala informacja o biezacym etapie
         out = gr.File(label=en["result"])
 
-        run_event = btn.click(
+        # Na czas pracy blokujemy wszystko poza Stop; odblokowanie po zakonczeniu
+        # (takze po bledzie — .then odpala sie zawsze) lub w handlerze Stop
+        # (anulowany lancuch nie wykona juz swojego .then).
+        lockable = [file_in, url_in, preset, stems, yt_full, split_vocals, split_drums, btn]
+
+        def _set_interactive(value):
+            return lambda: [gr.update(interactive=value)] * len(lockable)
+
+        sep_event = btn.click(
+            _set_interactive(False), None, lockable,
+        ).then(
             separate,
-            [file_in, url_in, stems, preset, split_vocals, split_drums, lang_state],
-            [status, out])
-        # Stop: anuluje trwajacy event. Pipeline oddaje sterowanie MIEDZY etapami,
-        # wiec zatrzymanie zadziala po zakonczeniu biezacego kroku (pojedynczego
-        # wywolania modelu nie da sie przerwac w polowie).
-        stop_btn.click(lambda lang: TEXT.get(lang, TEXT["en"])["stopped"],
-                       [lang_state], [status], cancels=[run_event])
+            [file_in, url_in, stems, preset, yt_full, split_vocals, split_drums, lang_state],
+            [status, out],
+        )
+        sep_event.then(_set_interactive(True), None, lockable)
+
+        def _on_stop(lang):
+            t = TEXT.get(lang, TEXT["en"])
+            return [t["stopped"]] + [gr.update(interactive=True)] * len(lockable)
+
+        # Pipeline oddaje sterowanie MIEDZY etapami, wiec zatrzymanie zadziala
+        # po zakonczeniu biezacego kroku (wywolania modelu nie da sie przerwac w polowie).
+        stop_btn.click(_on_stop, [lang_state], [status] + lockable, cancels=[sep_event])
+
         demo.load(_localize, None,
-                  [lang_state, header, file_in, url_in, stems, preset,
+                  [lang_state, header, file_in, url_in, preset, stems, yt_full,
                    split_vocals, split_drums, btn, stop_btn, out])
     return demo
 
