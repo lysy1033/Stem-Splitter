@@ -9,6 +9,11 @@ changes / nowe funkcje lub zmiana modeli · x: full rework / przebudowa aplikacj
 
 ## English
 
+### 1.32
+
+- **Even brighter texts** — labels, stem tiles, options and placeholders are now clearly readable
+  on the dark background.
+
 ### 1.31
 
 - **Fixed: the download button could be missing after a long separation.** When the browser put
@@ -41,6 +46,11 @@ changes / nowe funkcje lub zmiana modeli · x: full rework / przebudowa aplikacj
 ---
 
 ## Polski
+
+### 1.32
+
+- **Jeszcze jaśniejsze teksty** — etykiety, kafelki stemów, opcje i podpowiedzi w polach są teraz
+  wyraźnie czytelne na ciemnym tle.
 
 ### 1.31
 
