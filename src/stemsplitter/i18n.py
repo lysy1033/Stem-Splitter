@@ -32,6 +32,7 @@ TEXT = {
         "upd_running": "▸ Updating — an update window just opened. The app will restart "
                        "by itself; refresh this page in a minute or two.",
         "idle": "▸ Idle — waiting for a job.",
+        "last_pack": "▸ Last finished package: **{name}** ({time}) — ready to download below.",
         "yt_full": "Also add the full track as MP3 to the package (YouTube links)",
         "missing_stems": "! Could not produce: {stems}.",
         "stage_labels": {
@@ -73,6 +74,7 @@ TEXT = {
         "upd_running": "▸ Aktualizuję — właśnie otworzyło się okno aktualizacji. Aplikacja "
                        "uruchomi się ponownie sama; odśwież tę stronę za minutę–dwie.",
         "idle": "▸ Czekam na zadanie.",
+        "last_pack": "▸ Ostatnia gotowa paczka: **{name}** ({time}) — do pobrania poniżej.",
         "yt_full": "Dodaj też cały utwór jako MP3 do paczki (linki YouTube)",
         "missing_stems": "! Nie udało się wyprodukować: {stems}.",
         "stage_labels": {

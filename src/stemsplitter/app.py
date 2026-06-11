@@ -1,3 +1,4 @@
+import datetime
 import sys
 import zipfile
 from pathlib import Path
@@ -41,6 +42,12 @@ def _zip_results(result: dict[str, str], output_dir: Path, title: str,
         for extra in extras or []:
             z.write(extra, arcname=Path(extra).name)
     return str(zip_path)
+
+
+def _latest_zip(output_dir: Path) -> Path | None:
+    """Najnowsza gotowa paczka w folderze wynikowym (None, gdy brak)."""
+    zips = list(output_dir.glob("*.zip"))
+    return max(zips, key=lambda p: p.stat().st_mtime) if zips else None
 
 
 def separate(file_path, url, chosen_stems, preset_key, yt_full, split_vocals, split_drums, lang,
@@ -91,7 +98,14 @@ def separate(file_path, url, chosen_stems, preset_key, yt_full, split_vocals, sp
         else:
             result = event[1]
 
-    yield t["pack"], gr.update(visible=False)
+    # Uspiona karta przegladarki zrywa polaczenie -> Gradio zamyka generator
+    # (GeneratorExit na yield). Wyniki sa juz policzone, wiec paczka musi
+    # powstac mimo to — po powrocie na strone _localize pokaze ja do pobrania.
+    try:
+        yield t["pack"], gr.update(visible=False)
+    except GeneratorExit:
+        _zip_results(result, dirs.output, title, extras)
+        raise
     zip_path = _zip_results(result, dirs.output, title, extras)
     done = t["done"]
     missing = [s for s in requested if s not in result]
@@ -102,12 +116,21 @@ def separate(file_path, url, chosen_stems, preset_key, yt_full, split_vocals, sp
 
 
 def _localize(request: gr.Request):
-    """Na zaladowanie strony: ustaw jezyk wg przegladarki i przetlumacz etykiety."""
+    """Na zaladowanie strony: ustaw jezyk wg przegladarki i przetlumacz etykiety.
+
+    Odpala sie tez po obudzeniu uspionej karty (przegladarka laduje strone od
+    nowa po zerwanym polaczeniu), wiec pokazuje najnowsza gotowa paczke —
+    bez tego wynik dlugiej pracy bylby niemozliwy do pobrania z GUI."""
     lang = pick_lang(request)
     t = TEXT[lang]
     accel = engine.detect_acceleration()
     upd = update.update_available()
     upd_text = t["upd_available"].format(current=upd[0], latest=upd[1]) if upd else ""
+    status_text = t["idle"]
+    last = _latest_zip(paths.ensure_data_dirs().output)
+    if last is not None:
+        when = datetime.datetime.fromtimestamp(last.stat().st_mtime).strftime("%d.%m %H:%M")
+        status_text = f"{t['idle']}\n\n{t['last_pack'].format(name=last.name, time=when)}"
     return (
         lang,
         gr.update(value=f"# {t['title']}\n{t['accel']}: **{accel}** · v **{update.current_version()}**"),
@@ -120,8 +143,9 @@ def _localize(request: gr.Request):
         gr.update(label=t["split_drums"]),
         gr.update(value=t["run"]),
         gr.update(value=t["stop"]),
-        gr.update(label=t["result"]),
-        gr.update(value=t["idle"]),
+        gr.update(label=t["result"], value=str(last) if last else None,
+                  visible=last is not None),
+        gr.update(value=status_text),
         gr.update(visible=upd is not None),
         gr.update(value=upd_text),
         gr.update(value=t["upd_button"]),
@@ -149,7 +173,7 @@ _BOOT_JS = """
 """
 
 _CSS = """
-:root {--hud: #f59e0b; --hud-dim: rgba(245,158,11,.55); --ink: #e7e9ee; --mut: #8b919c; --line: #24272e;}
+:root {--hud: #f59e0b; --hud-dim: rgba(245,158,11,.55); --ink: #e7e9ee; --mut: #b3b9c4; --line: #24272e;}
 body {background:
   radial-gradient(900px 420px at 50% -10%, rgba(245,158,11,.07), transparent 60%),
   repeating-linear-gradient(0deg, transparent 0 23px, rgba(255,255,255,.012) 23px 24px),
@@ -172,22 +196,22 @@ h1 + p {font-family: 'IBM Plex Mono', ui-monospace, monospace !important; displa
 h1 + p strong {color: var(--hud) !important; font-weight: 600 !important;}
 /* etykiety sekcji */
 label > span, span[data-testid="block-info"] {font-family: 'IBM Plex Mono', ui-monospace, monospace !important;
-  text-transform: uppercase !important; letter-spacing: .22em !important; font-size: 9.5px !important; color: #6e747e !important;}
+  text-transform: uppercase !important; letter-spacing: .22em !important; font-size: 9.5px !important; color: #a8aeba !important;}
 span[data-testid="block-info"]::before {content: "// "; color: var(--hud-dim);}
 /* strefa uploadu */
 .boundedheight {max-height: 150px !important; min-height: 130px !important; border: 1px dashed #2c3038 !important;
   margin: 8px; background: rgba(255,255,255,.012) !important;}
 .boundedheight * {font-family: 'IBM Plex Mono', ui-monospace, monospace !important; font-size: 11.5px !important;
-  font-weight: 400 !important; letter-spacing: .12em; color: #79808b !important; text-transform: uppercase;}
+  font-weight: 400 !important; letter-spacing: .12em; color: #aab1bc !important; text-transform: uppercase;}
 /* pola tekstowe */
 input[type=text], textarea {background: #08090c !important; border: 1px solid var(--line) !important;
   font-family: 'IBM Plex Mono', ui-monospace, monospace !important; font-size: 12.5px !important; color: var(--ink) !important;}
 input[type=text]:focus, textarea:focus {border-color: var(--hud-dim) !important; box-shadow: 0 0 0 1px var(--hud-dim) !important;}
 /* chipy wyboru (grupy radio i checkbox) */
-[data-testid="checkbox-group"] label, fieldset label {background: transparent !important; border: 1px solid #2a2e36 !important;
-  color: #969ca6 !important; font-family: 'IBM Plex Mono', ui-monospace, monospace !important; font-size: 11px !important;
+[data-testid="checkbox-group"] label, fieldset label {background: transparent !important; border: 1px solid #353a44 !important;
+  color: #c6cbd4 !important; font-family: 'IBM Plex Mono', ui-monospace, monospace !important; font-size: 11px !important;
   letter-spacing: .1em; text-transform: uppercase; transition: all .15s ease;}
-[data-testid="checkbox-group"] label:hover, fieldset label:hover {border-color: #3a3f48 !important; color: #c3c8d0 !important;}
+[data-testid="checkbox-group"] label:hover, fieldset label:hover {border-color: #4a505b !important; color: #e2e5ea !important;}
 [data-testid="checkbox-group"] label.selected, fieldset label.selected {border-color: var(--hud) !important;
   color: #ffd789 !important; background: rgba(245,158,11,.09) !important; box-shadow: 0 0 10px rgba(245,158,11,.12);}
 /* sciezki: rowna siatka 3xN, dioda LED zamiast kwadratu checkboxa */
@@ -200,28 +224,46 @@ input[type=text]:focus, textarea:focus {border-color: var(--hud-dim) !important;
 [data-testid="checkbox-group"] label input[type=checkbox]:checked {background: var(--hud); box-shadow: 0 0 9px var(--hud);}
 /* pojedyncze checkboxy (opcje) */
 label.checkbox-container {font-family: 'IBM Plex Mono', ui-monospace, monospace !important; font-size: 11.5px !important;
-  letter-spacing: .1em; text-transform: uppercase; color: #969ca6 !important;}
+  letter-spacing: .1em; text-transform: uppercase; color: #c6cbd4 !important;}
 input[type=checkbox], input[type=radio] {accent-color: var(--hud);}
 /* konsola statusu */
 #console {font-family: 'IBM Plex Mono', ui-monospace, monospace !important; font-size: .82rem !important;
   background: linear-gradient(180deg, #050607, #07080a) !important; color: #fcbf49 !important;
   border: 1px solid #2b2f37 !important; box-shadow: inset 0 0 36px rgba(0,0,0,.75) !important;
-  padding: 38px 18px 16px !important; min-height: 330px !important; position: relative; overflow: hidden;}
+  padding: 38px 18px 58px !important; min-height: 330px !important; position: relative; overflow: hidden;}
 #console::before {content: "MONITOR"; position: absolute; top: 0; left: 0; right: 0; height: 24px;
-  font-size: 9px; letter-spacing: .3em; color: #6e747e; background: #0b0d11; border-bottom: 1px solid #23262c;
+  font-size: 9px; letter-spacing: .3em; color: #a8aeba; background: #0b0d11; border-bottom: 1px solid #23262c;
   display: flex; align-items: center; padding-left: 30px;}
 #console::after {content: ""; position: absolute; top: 8px; left: 14px; width: 8px; height: 8px; border-radius: 50%;
   background: var(--hud); box-shadow: 0 0 8px var(--hud); animation: pulse 2.2s ease-in-out infinite;}
 @keyframes pulse {50% {opacity: .35;}}
 #console p {margin: 0 0 7px 0 !important; text-shadow: 0 0 6px rgba(252,191,73,.25);}
 #console strong {color: #ffe1a6 !important;}
+/* pasek postepu Gradio (status-tracker): zamiast nakladki u gory (wjezdzala na
+   belke MONITOR i tekst) — zadokowany na dole konsoli jak linia statusu terminala */
+#console > .wrap {position: absolute !important; inset: auto 0 0 0 !important;
+  background: #0b0d11 !important; border-top: 1px solid #23262c !important; margin: 0 !important;
+  padding: 8px 14px 9px !important; display: flex !important; flex-direction: column-reverse;
+  gap: 5px; align-items: stretch; min-height: 0 !important; backdrop-filter: none !important;}
+#console > .wrap .progress-text {position: static !important; margin: 0 !important;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace !important; font-size: 9.5px !important;
+  letter-spacing: .18em; text-transform: uppercase; color: #b3b9c4 !important; text-align: right;}
+#console > .wrap .progress-level {width: 100% !important; margin: 0 !important;}
+#console > .wrap .progress-level-inner {font-family: 'IBM Plex Mono', ui-monospace,
+  monospace !important; font-size: 9.5px !important; letter-spacing: .18em; color: #fcbf49 !important;
+  text-align: left; margin-bottom: 4px;}
+#console > .wrap .progress-bar-wrap {background: #15171c !important;
+  border: 1px solid #23262c !important; border-radius: 0 !important; height: 8px !important;
+  margin: 0 !important; width: 100% !important;}
+#console > .wrap .progress-bar {background: linear-gradient(90deg, #d97706, #f59e0b)
+  !important; box-shadow: 0 0 10px rgba(245,158,11,.45); height: 100% !important;}
 /* przyciski */
 button {font-family: 'Chakra Petch', system-ui, sans-serif !important; text-transform: uppercase;
   letter-spacing: .14em; font-weight: 600 !important;}
 button.primary {background: linear-gradient(180deg, #f6a722, #d97706) !important; color: #160f02 !important;
   border: 1px solid #b45309 !important; box-shadow: 0 0 18px rgba(245,158,11,.22), 0 1px 0 rgba(255,255,255,.25) inset !important;}
 button.primary:hover {filter: brightness(1.08); box-shadow: 0 0 26px rgba(245,158,11,.35) !important;}
-button.stop {background: #0c0e12 !important; color: #9aa0aa !important; border: 1px solid #33373f !important;}
+button.stop {background: #0c0e12 !important; color: #c3c8d2 !important; border: 1px solid #3e434d !important;}
 button.stop:hover {border-color: #b91c1c !important; color: #ef9a9a !important;}
 /* scrollbar */
 ::-webkit-scrollbar {width: 10px; height: 10px;}

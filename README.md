@@ -76,9 +76,10 @@ Nothing is hidden, and nothing is put in your OneDrive.
 
 ### Quality options
 
-- **Fast** — quick, 4 tracks (vocals/drums/bass/other).
-- **Best quality** — cleaner, a little slower (recommended for most songs).
-- **Maximum** — does two passes so **guitar and other instruments come out clearer**. Slowest.
+- **Normal quality** — 6 tracks (vocals/drums/bass/guitar/piano/other); the model passes over
+  the song twice. Good and reasonably fast.
+- **Ultra** — first isolates the vocals with the best dedicated model, then separates the
+  instruments in 8 passes. Slower, but the **vocals come out cleaner**.
 
 ### Good to know about quality
 
@@ -95,6 +96,10 @@ harder for any AI — results are good, but not studio-perfect.
   it will continue.
 - **No NVIDIA graphics card on Windows** — that's fine, it still works, just slower (a song can
   take a few minutes).
+- **You came back to the computer and there's no download button** — the browser put the page to
+  sleep while you were away. Refresh the page (or open it again) — the app shows your **last
+  finished package**, ready to download. Your tracks are always saved in the `StemSplitter/output`
+  folder too.
 
 ### For advanced users — swapping models
 
@@ -109,6 +114,8 @@ StemSplitter folder are untouched.
 
 You can also update manually by double-clicking: `installers/update-mac.command` (macOS) /
 `installers/update-windows.bat` (Windows).
+
+What changed in each version is listed in [RELEASE_NOTES.md](RELEASE_NOTES.md).
 
 ---
 
@@ -180,10 +187,10 @@ ukryte i nic nie ląduje w OneDrive.
 
 ### Opcje jakości
 
-- **Szybko** — szybkie, 4 ścieżki (wokal/perkusja/bas/reszta).
-- **Najlepsza jakość** — czystsze, trochę wolniejsze (polecane do większości utworów).
-- **Maksymalna** — robi dwa przejścia, dzięki czemu **gitara i inne instrumenty wychodzą czyściej**.
-  Najwolniejsze.
+- **Jakość normalna** — 6 ścieżek (wokal/perkusja/bas/gitara/pianino/reszta); model przechodzi
+  utwór dwa razy. Dobra jakość w rozsądnym czasie.
+- **Ultra** — najpierw izoluje wokal najlepszym dedykowanym modelem, potem rozdziela instrumenty
+  w 8 przejściach. Wolniejsze, ale **wokal wychodzi czyściej**.
 
 ### Warto wiedzieć o jakości
 
@@ -200,6 +207,9 @@ trudniejsze dla każdego AI — wyniki są dobre, ale nie idealne studyjnie.
 - **Wygląda, jakby się zawiesiło przy pierwszym razie** — pobiera modele AI; popatrz na tekst
   postępu, za chwilę ruszy dalej.
 - **Brak karty NVIDIA na Windows** — to nic, też działa, tylko wolniej (utwór może zająć kilka minut).
+- **Wracasz do komputera, a przycisku pobierania nie ma** — przeglądarka uśpiła stronę pod Twoją
+  nieobecność. Odśwież stronę (albo otwórz ją ponownie) — aplikacja pokaże **ostatnią gotową
+  paczkę** do pobrania. Ścieżki i tak zawsze zapisują się w folderze `StemSplitter/output`.
 
 ### Dla zaawansowanych — wymiana modeli
 
@@ -214,3 +224,5 @@ StemSplitter zostają nietknięte.
 
 Można też zaktualizować ręcznie, klikając dwukrotnie: `installers/update-mac.command` (macOS) /
 `installers/update-windows.bat` (Windows).
+
+Co zmieniło się w każdej wersji, znajdziesz w [RELEASE_NOTES.md](RELEASE_NOTES.md).
