@@ -9,6 +9,11 @@ changes / nowe funkcje lub zmiana modeli · x: full rework / przebudowa aplikacj
 
 ## English
 
+### 1.33
+
+- **Fixed: the status text was dimmed while processing** — exactly when you most want to read
+  what the app is doing. The monitor stays fully bright during a run.
+
 ### 1.32
 
 - **Even brighter texts** — labels, stem tiles, options and placeholders are now clearly readable
@@ -46,6 +51,11 @@ changes / nowe funkcje lub zmiana modeli · x: full rework / przebudowa aplikacj
 ---
 
 ## Polski
+
+### 1.33
+
+- **Naprawione: opis statusu był przygaszony w trakcie pracy** — dokładnie wtedy, gdy najbardziej
+  chcesz przeczytać, co aplikacja robi. Monitor pozostaje teraz w pełni jasny podczas przetwarzania.
 
 ### 1.32
 

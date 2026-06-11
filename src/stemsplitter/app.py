@@ -240,6 +240,9 @@ input[type=checkbox], input[type=radio] {accent-color: var(--hud);}
 @keyframes pulse {50% {opacity: .35;}}
 #console p {margin: 0 0 7px 0 !important; text-shadow: 0 0 6px rgba(252,191,73,.25);}
 #console strong {color: #ffe1a6 !important;}
+/* Gradio przygasza tresc wyjscia w trakcie pracy (.pending, opacity .2);
+   monitor ma byc w pelni czytelny wlasnie WTEDY — wylaczamy przygaszanie */
+#console > .pending {opacity: 1 !important;}
 /* pasek postepu Gradio (status-tracker): zamiast nakladki u gory (wjezdzala na
    belke MONITOR i tekst) — zadokowany na dole konsoli jak linia statusu terminala */
 #console > .wrap {position: absolute !important; inset: auto 0 0 0 !important;
