@@ -14,9 +14,15 @@ models:
     file: htdemucs_6s.yaml
     architecture: demucs
     role: "6 stemow (dodaje gitare i pianino)"
+  roformer_sw:
+    file: BS-Roformer-SW.ckpt
+    architecture: roformer
+    role: "6 stemow Roformer (jarredou): wokal/bas/perkusja/gitara/pianino/inne"
   roformer_vocals:
     file: model_bs_roformer_ep_317_sdr_12.9755.ckpt
     architecture: roformer
+    # 2026-11: sprawdzono nowszy bs_roformer_vocals_resurrection_unwa (+0.5 dB SDR wokalu),
+    # ale na Macu z 16 GB RAM zawiesza sie na MPS (chunk ~18 s) -> zostaje ep_317.
     role: "izolacja wokalu (wokal + instrumental)"
   roformer_karaoke:
     file: mel_band_roformer_karaoke_becruily.ckpt

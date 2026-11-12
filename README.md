@@ -76,10 +76,10 @@ Nothing is hidden, and nothing is put in your OneDrive.
 
 ### Quality options
 
-- **Normal quality** — 6 tracks (vocals/drums/bass/guitar/piano/other); the model passes over
-  the song twice. Good and reasonably fast.
-- **Ultra** — first isolates the vocals with the best dedicated model, then separates the
-  instruments in 8 passes. Slower, but the **vocals come out cleaner**.
+- **Normal quality** — 6 tracks (vocals/drums/bass/guitar/piano/other) in one step, using the
+  BS-Roformer SW 6-stem model. Good and reasonably fast.
+- **Ultra** — first isolates the vocals with a dedicated vocal model, then separates the
+  instruments from the vocal-free remainder. Slower, but the **vocals come out cleaner**.
 
 ### Good to know about quality
 
@@ -187,10 +187,10 @@ ukryte i nic nie ląduje w OneDrive.
 
 ### Opcje jakości
 
-- **Jakość normalna** — 6 ścieżek (wokal/perkusja/bas/gitara/pianino/reszta); model przechodzi
-  utwór dwa razy. Dobra jakość w rozsądnym czasie.
-- **Ultra** — najpierw izoluje wokal najlepszym dedykowanym modelem, potem rozdziela instrumenty
-  w 8 przejściach. Wolniejsze, ale **wokal wychodzi czyściej**.
+- **Jakość normalna** — 6 ścieżek (wokal/perkusja/bas/gitara/pianino/reszta) w jednym kroku,
+  modelem 6-ścieżkowym BS-Roformer SW. Dobra jakość w rozsądnym czasie.
+- **Ultra** — najpierw izoluje wokal dedykowanym modelem wokalnym, potem rozdziela instrumenty
+  z tego, co zostało bez wokalu. Wolniejsze, ale **wokal wychodzi czyściej**.
 
 ### Warto wiedzieć o jakości
 

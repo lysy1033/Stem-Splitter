@@ -9,6 +9,15 @@ changes / nowe funkcje lub zmiana modeli · x: full rework / przebudowa aplikacj
 
 ## English
 
+### 1.4
+
+- **New, much better separation model.** Both quality options now use **BS-Roformer SW**, a
+  modern 6-track model that is better than the previous one on every track — most noticeably
+  **guitar and piano**, which were the weakest before. Vocals, drums and bass are cleaner too.
+- **Ultra** keeps its dedicated vocal model, and now splits the instruments from the vocal-free
+  remainder with the new model too.
+- The first run after updating downloads the new model (about 0.7 GB) — give it a few minutes.
+
 ### 1.33
 
 - **Fixed: the status text was dimmed while processing** — exactly when you most want to read
@@ -51,6 +60,16 @@ changes / nowe funkcje lub zmiana modeli · x: full rework / przebudowa aplikacj
 ---
 
 ## Polski
+
+### 1.4
+
+- **Nowy, znacznie lepszy model separacji.** Obie opcje jakości korzystają teraz z modelu
+  **BS-Roformer SW** — nowoczesnego modelu 6-ścieżkowego, lepszego od poprzedniego na każdej
+  ścieżce, a najbardziej na **gitarze i pianinie**, które wcześniej wychodziły najsłabiej. Wokal,
+  perkusja i bas też są czystsze.
+- **Ultra** zachowuje dedykowany model wokalny, a instrumenty z tego, co zostało bez wokalu,
+  rozdziela teraz również nowym modelem.
+- Pierwsze uruchomienie po aktualizacji pobiera nowy model (ok. 0,7 GB) — daj mu kilka minut.
 
 ### 1.33
 

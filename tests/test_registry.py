@@ -46,3 +46,9 @@ def test_real_registry_knows_bag_models():
     # htdemucs_ft to pakiet 4 pod-modeli; pojedyncze modele maja 1
     assert reg["htdemucs_ft"].passes == 4
     assert reg["htdemucs_6s"].passes == 1
+
+
+def test_real_registry_has_six_stem_roformer():
+    reg = registry.load_registry()
+    assert reg["roformer_sw"].file == "BS-Roformer-SW.ckpt"
+    assert reg["roformer_sw"].architecture == "roformer"

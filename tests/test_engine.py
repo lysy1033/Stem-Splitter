@@ -50,9 +50,9 @@ def test_run_pipeline_chains_stages_and_filters(monkeypatch, tmp_path):
     # Mock: separator dla danego modelu zwraca z gory ustalone stemy.
     fake_outputs = {
         "roformer_vocals": {"Vocals": "v.wav", "Instrumental": "inst.wav"},
-        "htdemucs_6s": {
-            "Bass": "b.wav", "Drums": "d.wav", "Guitar": "g.wav",
-            "Piano": "p.wav", "Other": "o.wav",
+        "roformer_sw": {
+            "bass": "b.wav", "drums": "d.wav", "guitar": "g.wav",
+            "piano": "p.wav", "other": "o.wav", "vocals": "sw_v.wav",
         },
     }
 
@@ -75,28 +75,29 @@ def test_run_pipeline_chains_stages_and_filters(monkeypatch, tmp_path):
         requested_stems=["wokal", "gitara"],
         output_dir=tmp_path,
     )
-    # tylko zadane stemy w wyniku
+    # tylko zadane stemy w wyniku; wokal pochodzi z etapu 1, nie z resztek etapu 2
     assert set(result.keys()) == {"wokal", "gitara"}
     assert result["gitara"].endswith("g.wav")
+    assert result["wokal"].endswith("v.wav")
 
     # etap 1 otrzymuje oryginalny miks
     assert seen_inputs["roformer_vocals"] == str(tmp_path / "song.wav")
     # etap 2 otrzymuje instrumental wyprodukowany przez etap 1, nie oryginalny miks
-    assert seen_inputs["htdemucs_6s"] == str(Path(tmp_path) / "inst.wav")
+    assert seen_inputs["roformer_sw"] == str(Path(tmp_path) / "inst.wav")
 
 
 def test_run_pipeline_steps_yields_stages_then_result(monkeypatch, tmp_path):
     def fake_separate(model_file, input_path, output_dir, shifts=0):
         reg = registry.load_registry()
         mid = next(m.id for m in reg.values() if m.file == model_file)
-        return {"Instrumental": "x.wav"} if mid == "roformer_vocals" else {"Guitar": "g.wav"}
+        return {"Instrumental": "x.wav"} if mid == "roformer_vocals" else {"guitar": "g.wav"}
 
     monkeypatch.setattr(engine, "_separate_with_model", fake_separate)
     p = pipeline.load_preset("ultra")
     events = list(engine.run_pipeline_steps(tmp_path / "s.wav", p, ["gitara"], output_dir=tmp_path))
     assert [e[0] for e in events] == ["stage", "stage", "result"]
     assert events[0][1:] == (0, 2, "roformer_vocals", 1)
-    assert events[1][1:] == (1, 2, "htdemucs_6s", 8)
+    assert events[1][1:] == (1, 2, "roformer_sw", 1)
     assert events[-1][1]["gitara"].endswith("g.wav")
 
 
@@ -116,16 +117,17 @@ def test_run_pipeline_reports_progress_per_stage(monkeypatch, tmp_path):
     p = pipeline.load_preset("ultra")
     engine.run_pipeline(tmp_path / "song.wav", p, [], output_dir=tmp_path,
                         progress_cb=lambda done, total, model_id: calls.append((done, total, model_id)))
-    assert calls == [(0, 2, "roformer_vocals"), (1, 2, "htdemucs_6s")]
+    assert calls == [(0, 2, "roformer_vocals"), (1, 2, "roformer_sw")]
 
 
-def test_normalna_reports_two_passes(monkeypatch, tmp_path):
+def test_normalna_reports_single_pass(monkeypatch, tmp_path):
     monkeypatch.setattr(engine, "_separate_with_model",
-                        lambda mf, ip, od, shifts=0: {"Vocals": "v.wav"})
+                        lambda mf, ip, od, shifts=0: {"vocals": "v.wav"})
     p = pipeline.load_preset("normalna")
     events = list(engine.run_pipeline_steps(tmp_path / "s.wav", p, ["wokal"], output_dir=tmp_path))
-    # htdemucs_6s (1 pod-model) x shifts=2
-    assert events[0][1:] == (0, 1, "htdemucs_6s", 2)
+    # roformer_sw: jeden model, jedno przejscie
+    assert events[0][1:] == (0, 1, "roformer_sw", 1)
+    assert events[-1][1]["wokal"].endswith("v.wav")
 
 
 def test_stage_shifts_flow_into_separation(monkeypatch, tmp_path):
@@ -135,12 +137,12 @@ def test_stage_shifts_flow_into_separation(monkeypatch, tmp_path):
         reg = registry.load_registry()
         mid = next(m.id for m in reg.values() if m.file == model_file)
         seen[mid] = shifts
-        return {"Instrumental": "x.wav"} if mid == "roformer_vocals" else {"Guitar": "g.wav"}
+        return {"Instrumental": "x.wav"} if mid == "roformer_vocals" else {"guitar": "g.wav"}
 
     monkeypatch.setattr(engine, "_separate_with_model", fake_separate)
     p = pipeline.load_preset("ultra")
     list(engine.run_pipeline_steps(tmp_path / "s.wav", p, ["gitara"], output_dir=tmp_path))
-    assert seen == {"roformer_vocals": 0, "htdemucs_6s": 8}
+    assert seen == {"roformer_vocals": 0, "roformer_sw": 0}
 
 
 def test_separate_with_model_passes_shifts_to_separator(monkeypatch, tmp_path):

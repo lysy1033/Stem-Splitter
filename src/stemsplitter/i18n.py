@@ -37,14 +37,15 @@ TEXT = {
         "missing_stems": "! Could not produce: {stems}.",
         "stage_labels": {
             "htdemucs_6s": "splitting instruments (incl. guitar/piano)",
+            "roformer_sw": "splitting into 6 tracks (incl. guitar/piano)",
             "roformer_vocals": "isolating vocals",
             "roformer_karaoke": "vocals → lead + backing",
             "drumsep": "splitting drums into elements",
         },
         "stem_labels": {"wokal": "Vocals", "perkusja": "Drums", "bas": "Bass",
                         "gitara": "Guitar", "pianino": "Piano", "inne": "Other"},
-        "presets": {"normalna": "Normal quality (6 stems, 2 passes)",
-                    "ultra": "Ultra (best vocals, 8 passes)"},
+        "presets": {"normalna": "Normal quality (6 stems, 1 step)",
+                    "ultra": "Ultra (cleanest vocals, 2 steps)"},
     },
     "pl": {
         "title": "StemSplitter",
@@ -79,14 +80,15 @@ TEXT = {
         "missing_stems": "! Nie udało się wyprodukować: {stems}.",
         "stage_labels": {
             "htdemucs_6s": "rozdzielanie instrumentów (z gitarą/pianinem)",
+            "roformer_sw": "podział na 6 ścieżek (z gitarą/pianinem)",
             "roformer_vocals": "izolacja wokalu",
             "roformer_karaoke": "wokal → lead + chórki",
             "drumsep": "rozbijanie perkusji na elementy",
         },
         "stem_labels": {"wokal": "Wokal", "perkusja": "Perkusja", "bas": "Bas",
                         "gitara": "Gitara", "pianino": "Pianino", "inne": "Reszta"},
-        "presets": {"normalna": "Jakość normalna (6 ścieżek, 2 przejścia)",
-                    "ultra": "Ultra (najlepszy wokal, 8 przejść)"},
+        "presets": {"normalna": "Jakość normalna (6 ścieżek, 1 krok)",
+                    "ultra": "Ultra (najczystszy wokal, 2 kroki)"},
     },
 }
 

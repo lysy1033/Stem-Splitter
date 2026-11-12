@@ -7,10 +7,12 @@ presets:
   normalna:
     label: "Jakosc normalna"
     stages:
+      # BS-Roformer-SW: 6 stemow w jednym przejsciu, wyraznie lepszy od htdemucs_6s
+      # na kazdym stemie (MVSEP Multisong SDR: wokal 11.3, gitara 9.05, pianino 7.83).
+      # Uwaga: ten model zwraca nazwy stemow malymi literami.
       - input: mix
-        model: htdemucs_6s
-        shifts: 2
-        outputs: {Vocals: wokal, Drums: perkusja, Bass: bas, Guitar: gitara, Piano: pianino, Other: inne}
+        model: roformer_sw
+        outputs: {vocals: wokal, drums: perkusja, bass: bas, guitar: gitara, piano: pianino, other: inne}
   ultra:
     label: "Ultra"
     stages:
@@ -18,11 +20,11 @@ presets:
       - input: mix
         model: roformer_vocals
         outputs: {Vocals: wokal, Instrumental: instrumental}
-      # 2: instrumenty z czystego instrumentalu, 8 przejsc z usrednianiem
+      # 2: instrumenty z czystego instrumentalu modelem 6-stemowym Roformer;
+      #    jego wlasny stem 'vocals' (resztki wokalu) jest pomijany
       - input: instrumental
-        model: htdemucs_6s
-        shifts: 8
-        outputs: {Bass: bas, Drums: perkusja, Guitar: gitara, Piano: pianino, Other: inne}
+        model: roformer_sw
+        outputs: {bass: bas, drums: perkusja, guitar: gitara, piano: pianino, other: inne}
 
 # Rozszerzenia doklejane na koncu pipeline, gdy uzytkownik zaznaczy przelacznik.
 # 'requires' to stem, ktory musi byc wczesniej wyprodukowany.
